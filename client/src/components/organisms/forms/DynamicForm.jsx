@@ -13,7 +13,7 @@ const DynamicForm = ({ schema, fields, onSubmit, submitBtnText = "Submit" }) => 
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 max-w-[400px] mx-auto py-5">
+      <form onSubmit={form.handleSubmit((data) => onSubmit(data, form.setError))} className="space-y-5 max-w-[400px] mx-auto py-5">
         {fields.map((customField) => (
           <Controller
             key={customField.name}
