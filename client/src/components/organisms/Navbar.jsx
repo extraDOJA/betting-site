@@ -1,28 +1,24 @@
 import AuthContext from "@/context/authContext";
-import React, { useContext } from "react";
-import { Link } from "react-router";
+import React, { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router";
 import { Button } from "../ui/button";
+import UserNavigationMenu from "../molecules/UserNavigationMenu";
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const renderAuthBtn = () => {
     return !user ? (
-      <Link to="/login">
-        <Button>Login</Button>
+      <Link to="/login" className="w-[90vw] md:w-[auto]">
+        <Button className="w-[100%]">Login</Button>
       </Link>
     ) : (
-      <Button onClick={logout}>Logout</Button>
+      <Button onClick={logout} className="w-[90vw] md:w-[auto]">
+        Logout
+      </Button>
     );
-  };
-
-  const renderUser = () => {
-    return user ? (
-      <Link to="#" className="text-md font-semibold capitalize">
-        &#128274;
-        <span>{user.username}</span>
-      </Link>
-    ) : null;
   };
 
   return (
@@ -35,7 +31,26 @@ const Navbar = () => {
             </Link>
           </div>
           <div className="flex items-center text-white gap-7">
-            {renderUser()}
+            <button className="md:hidden text-white" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              &#9776;
+            </button>
+            <div className={`hidden md:flex items-center gap-5`}>
+              {user && <Button onClick={() => navigate("#")}>{user.balance} $</Button>}
+              {user && <UserNavigationMenu user={user} />}
+              {renderAuthBtn()}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className={`${isMenuOpen ? "block" : "hidden"} md:hidden absolute top-[50px] left-0 w-full bg-black flex-col sm:flex-row items-center`}>
+        <div className="container mx-auto sm:px-5 px-3 py-5">
+          <div className="flex flex-col items-center gap-3">
+            {user && (
+              <Button onClick={() => navigate("#")} className="w-[90vw] md:w-[auto]">
+                {user.balance} $
+              </Button>
+            )}
+            {user && <UserNavigationMenu user={user} />}
             {renderAuthBtn()}
           </div>
         </div>
