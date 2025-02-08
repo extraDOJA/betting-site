@@ -1,19 +1,9 @@
-import Navbar from "@/components/organisms/Navbar";
-import AuthContext from "@/context/authContext";
-import React, { useContext } from "react";
-import { Link } from "react-router";
+import React from 'react'
 
 const HomePage = () => {
-  const { logout } = useContext(AuthContext);
-  
   return (
-    <>
-    <Navbar />
-    <main className="pt-[50px]">
-      HomePage
-    </main>
-    </>
-  );
-};
+    <div>HomePage</div>
+  )
+}
 
-export default HomePage;
+export default HomePage
