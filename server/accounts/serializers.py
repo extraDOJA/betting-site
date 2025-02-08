@@ -18,13 +18,22 @@ class CustomUserSerializer(serializers.ModelSerializer):
             password=validated_data["password"],
         )
         return user
-    
+
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
         token["username"] = user.username
-        token["balance"] = float(user.balance)
+        token["balance"] = str(user.balance)
         token["is_staff"] = user.is_staff
         return token
+
+
+class AddBalanceSerializer(serializers.Serializer):
+    amount = serializers.DecimalField(max_digits=10, decimal_places=2)
+
+    def validate_amount(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("Amount must be greater than zero.")
+        return value
