@@ -21,6 +21,10 @@ export const AuthProvider = ({ children }) => {
     logoutRequest();
   };
 
+  const handleSetBalance = (amount) => {
+    setUser((prev) => ({ ...prev, balance: amount }));
+  };
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -54,6 +58,7 @@ export const AuthProvider = ({ children }) => {
     user,
     login,
     logout,
+    handleSetBalance,
   };
 
   return <AuthContext.Provider value={context}>{children}</AuthContext.Provider>;
