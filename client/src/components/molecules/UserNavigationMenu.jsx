@@ -19,8 +19,8 @@ const UserNavigationMenu = ({ user }) => {
       <DropdownMenuContent className="w-[90vw] md:w-[auto]">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {navLinks.map((link) => (
-          <Link to={link.url} className="capitalize">
+        {navLinks.map((link, i) => (
+          <Link to={link.url} className="capitalize" key={i}>
             <DropdownMenuItem className="cursor-pointer">{link.title}</DropdownMenuItem>
           </Link>
         ))}
