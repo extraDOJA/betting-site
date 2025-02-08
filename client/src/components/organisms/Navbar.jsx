@@ -35,7 +35,7 @@ const Navbar = () => {
               &#9776;
             </button>
             <div className={`hidden md:flex items-center gap-5`}>
-              {user && <Button onClick={() => navigate("#")}>{user.balance} $</Button>}
+              {user && <Button onClick={() => navigate("/balance")}>{user.balance} $</Button>}
               {user && <UserNavigationMenu user={user} />}
               {renderAuthBtn()}
             </div>
@@ -46,7 +46,7 @@ const Navbar = () => {
         <div className="container mx-auto sm:px-5 px-3 py-5">
           <div className="flex flex-col items-center gap-3">
             {user && (
-              <Button onClick={() => navigate("#")} className="w-[90vw] md:w-[auto]">
+              <Button onClick={() => navigate("/balance")} className="w-[90vw] md:w-[auto]">
                 {user.balance} $
               </Button>
             )}
