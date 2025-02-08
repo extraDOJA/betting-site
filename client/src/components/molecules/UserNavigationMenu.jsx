@@ -16,7 +16,7 @@ const UserNavigationMenu = ({ user }) => {
       <DropdownMenuTrigger className="font-semibold h-9 px-4 py-2 text-sm capitalize rounded-md text-white w-[90vw] md:w-[auto] md:px-5" style={{ backgroundColor: "hsl(var(--primary))" }}>
         &#128274; {user?.username}
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent className="w-[90vw] md:w-[auto]">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {navLinks.map((link) => (
