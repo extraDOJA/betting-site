@@ -3,7 +3,7 @@ import { z } from "zod";
 import DynamicForm from "./DynamicForm";
 import AuthContext from "@/context/authContext";
 import { loginRequest } from "@/services/authService";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 const LoginFormSchema = z.object({
   username: z.string().nonempty(),
@@ -19,10 +19,12 @@ const fields = [
 const LoginForm = () => {
   const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
 
   useEffect(() => {
     if (user) {
-      navigate("/");
+      navigate(from, { replace: true });
     }
   }, [user]);
 
