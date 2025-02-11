@@ -2,11 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-*{
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
 @layer base {
   :root {
@@ -73,8 +68,13 @@
   }
 }
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box !important;
+}
 
-body{
+body {
   min-height: 100vh;
   background-color: #eff0f1;
 }
