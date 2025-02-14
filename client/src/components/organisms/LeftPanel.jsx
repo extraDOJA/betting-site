@@ -26,9 +26,9 @@ const LeftPanel = () => {
           <div className="bg-white rounded-lg shadow-sm">
             <div className="divide-y divide-gray-100">
               {Array.isArray(popular) &&
-                popular.map((item, i) => (
-                  <ListItem key={i} country={item.country_code} to={item.slug}>
-                    {item.name}
+                popular.map((league) => (
+                  <ListItem key={league.id} country={league.country_code} to={league.url_path}>
+                    {league.name}
                   </ListItem>
                 ))}
             </div>
@@ -40,10 +40,10 @@ const LeftPanel = () => {
           <div className="bg-white rounded-lg shadow-sm">
             <Accordion type="single" collapsible className="w-full">
               {Array.isArray(sports) &&
-                sports.map((sport, i) => (
-                  <AccordionPanelItem key={i} title={sport.name}>
+                sports.map((sport) => (
+                  <AccordionPanelItem key={sport.id} title={sport.name}>
                     {sport.leagues.map((league, i) => (
-                      <ListItem key={i} country={league.country_code} to={league.slug}>
+                      <ListItem key={i} country={league.country_code} to={league.url_path}>
                         {league.name}
                       </ListItem>
                     ))}
