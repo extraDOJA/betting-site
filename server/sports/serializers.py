@@ -30,6 +30,7 @@ class MatchSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "league_name",
+            "queue",
             "sport_name",
             "home_team",
             "away_team",
