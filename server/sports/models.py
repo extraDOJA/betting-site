@@ -25,10 +25,9 @@ class League(models.Model):
     is_popular = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def save(self, *args, **kwargs):
-        if not self.slug.startswith("/league/"):
-            self.slug = f"/league/{self.slug.lstrip('/')}"
-        super().save(*args, **kwargs)
+    @property
+    def url_path(self):
+        return f"/league/{self.slug}"
 
     def __str__(self):
         return f"{self.name} ({self.sport.name})"

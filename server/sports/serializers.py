@@ -3,9 +3,14 @@ from .models import Match, Sport, League
 
 
 class LeagueSerializer(serializers.ModelSerializer):
+    url_path = serializers.SerializerMethodField()
+
     class Meta:
         model = League
-        fields = ["id", "name", "slug", "country_code", "is_popular"]
+        fields = ["id", "name", "slug", "url_path", "country_code", "is_popular"]
+    
+    def get_url_path(self, obj):
+        return obj.url_path
 
 
 class SportWithLeaguesSerializer(serializers.ModelSerializer):
