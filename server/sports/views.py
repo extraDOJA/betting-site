@@ -30,9 +30,9 @@ def sports_with_leagues(request):
 
 @list_matches_schema
 @api_view(["GET"])
-def list_matches(request):
+def list_popular_matches(request):
     """
-    Get list of upcoming matches
+    Get list of upcoming popular matches
     """
     matches = Match.objects.filter(is_active=True, is_popular=True, start_time__gte=timezone.now()).order_by("start_time")[:15]
     serializer = MatchSerializer(matches, many=True)
