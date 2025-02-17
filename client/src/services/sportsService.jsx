@@ -14,6 +14,5 @@ export const fetchSportsWithLeagues = async () => {
 
 export const fetchPopularMatches = async () => {
     const response = await axios.get(`${API_URL}/matches/popular/`);
-    console.log(response.data);
     return response.data;
 }
