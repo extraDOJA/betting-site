@@ -5,7 +5,7 @@ import { useBets } from "@/context/betsContext";
 
 const SportEvent = ({ match }) => {
   const { selectedBets, toggleBet } = useBets();
-  const selectedBet = selectedBets[match.id];
+  const selectedBet = selectedBets[match.id]?.betType;
 
   return (
     <div className="bg-card rounded-md py-3 px-4 mb-3" style={{ fontFamily: "Helvetica" }}>
@@ -21,16 +21,16 @@ const SportEvent = ({ match }) => {
             title={match.home_team}
             odds={match.home_win_odds}
             isSelected={selectedBet === "home"}
-            onClick={() => toggleBet(match.id, "home")}
+            onClick={() => toggleBet(match.id, "home", match)}
           />
 
-          <BetButton title="Draw" odds={match.draw_odds} isSelected={selectedBet === "draw"} onClick={() => toggleBet(match.id, "draw")} />
+          <BetButton title="Draw" odds={match.draw_odds} isSelected={selectedBet === "draw"} onClick={() => toggleBet(match.id, "draw", match)} />
 
           <BetButton
             title={match.away_team}
             odds={match.away_win_odds}
             isSelected={selectedBet === "away"}
-            onClick={() => toggleBet(match.id, "away")}
+            onClick={() => toggleBet(match.id, "away", match)}
           />
         </div>
       </div>
