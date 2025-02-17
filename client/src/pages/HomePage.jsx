@@ -1,6 +1,7 @@
 import HomeContent from "@/components/organisms/HomeContent";
 import LeftPanel from "@/components/organisms/LeftPanel";
 import Navbar from "@/components/organisms/Navbar";
+import RightPanel from "@/components/organisms/RightPanel";
 import { BetsProvider } from "@/context/betsContext";
 import React from "react";
 
@@ -17,6 +18,7 @@ const HomePage = () => {
           <HomeContent />
         </section>
         <section className="col-span-2">
+          <RightPanel />
         </section>
       </main>
       </BetsProvider>
