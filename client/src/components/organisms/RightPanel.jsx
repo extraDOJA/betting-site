@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
@@ -6,8 +6,10 @@ import { useBets } from "@/context/betsContext";
 import { BetItem } from "../atoms/BetItem";
 import { BetSummary } from "../molecules/BetSummary";
 import BetsList from "../molecules/BetsList";
+import AuthContext from "@/context/authContext";
 
 const RightPanel = () => {
+  const {user} = useContext(AuthContext);
   const { selectedBets, removeBet } = useBets();
   const [stake, setStake] = useState(0);
 
@@ -32,7 +34,7 @@ const RightPanel = () => {
           totalMultiplier={betsCount > 0 ? totalMultiplier : 0}
           onStakeChange={(e) => setStake(e.target.value)}
         />
-        <Button variant="destructive" className="w-full font-bold" disabled={betsCount === 0}>
+        <Button variant="destructive" className="w-full font-bold" disabled={betsCount === 0 || !user}>
           Place bet
         </Button>
       </div>
