@@ -9,10 +9,10 @@ const BetsList = ({ betsCount, bets, onRemoveBet }) => {
       ) : (
         <div className="space-y-2">
           {Object.entries(bets).map(([matchId, bet]) => (
-            <>
+            <div key={matchId}>
               <BetItem key={matchId} bet={bet} matchId={matchId} onRemove={() => onRemoveBet(matchId)} />
               <hr />
-            </>
+            </div>
           ))}
         </div>
       )}
