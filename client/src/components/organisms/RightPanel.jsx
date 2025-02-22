@@ -1,23 +1,54 @@
 import React, { useContext, useState } from "react";
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Badge } from "../ui/badge";
 import { useBets } from "@/context/betsContext";
-import { BetItem } from "../atoms/BetItem";
 import { BetSummary } from "../molecules/BetSummary";
 import BetsList from "../molecules/BetsList";
 import AuthContext from "@/context/authContext";
+import { createBetSlip } from "@/services/sportsService";
+import { useToast } from "@/hooks/use-toast";
+import { showErrorToast, showSuccessToast } from "@/services/toastService";
 
 const RightPanel = () => {
-  const {user} = useContext(AuthContext);
-  const { selectedBets, removeBet } = useBets();
+  const { user, handleSetBalance } = useContext(AuthContext);
+  const { selectedBets, removeBet, clearBets } = useBets();
   const [stake, setStake] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const betsCount = Object.keys(selectedBets).length;
 
   const totalMultiplier = Object.values(selectedBets)
     .reduce((acc, bet) => acc * parseFloat(bet.odds), 1)
     .toFixed(2);
+
+  const handlePlaceBet = async () => {
+    try {
+      setIsLoading(true);
+
+      const betSlipData = {
+        total_amount: parseFloat(stake),
+        bets: Object.entries(selectedBets).map(([matchId, bet]) => ({
+          match: parseInt(matchId),
+          bet_choice: bet.betType,
+          odds: parseFloat(bet.odds),
+        })),
+      };
+
+      const data = await createBetSlip(betSlipData);
+      handleSetBalance(data.user_balance);
+
+      showSuccessToast(toast, "Bet placed successfully!");
+      clearBets();
+      setStake(0);
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || "An error occurred. Please try again later.";
+      showErrorToast(toast, errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const isFormValid = betsCount > 0 && stake > 0 && user;
 
   return (
     <div className="mx-auto rounded-xl bg-card min-h-[500px] h-[70vh] max-w-[350px] flex flex-col" style={{ fontFamily: "Helvetica" }}>
@@ -34,8 +65,8 @@ const RightPanel = () => {
           totalMultiplier={betsCount > 0 ? totalMultiplier : 0}
           onStakeChange={(e) => setStake(e.target.value)}
         />
-        <Button variant="destructive" className="w-full font-bold" disabled={betsCount === 0 || !user}>
-          Place bet
+        <Button variant="destructive" className="w-full font-bold" disabled={!isFormValid || isLoading} onClick={handlePlaceBet}>
+          {isLoading ? "Placing Bet..." : "Place Bet"}
         </Button>
       </div>
     </div>
