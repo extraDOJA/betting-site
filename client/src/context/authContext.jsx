@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const handleSetBalance = (amount) => {
-    setUser((prev) => ({ ...prev, balance: amount }));
+    setUser((prev) => ({ ...prev, balance: amount.toFixed(2) }));
   };
 
   useEffect(() => {
