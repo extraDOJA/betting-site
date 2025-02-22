@@ -6,6 +6,8 @@ const BetsContext = createContext();
 export const BetsProvider = ({ children }) => {
   const [selectedBets, setSelectedBets] = useState({});
 
+  const clearBets = () => setSelectedBets({});
+
   const removeBet = (matchId) => {
     setSelectedBets((prev) => {
       const { [matchId]: _, ...rest } = prev;
@@ -29,6 +31,7 @@ export const BetsProvider = ({ children }) => {
 
   const context = {
     selectedBets,
+    clearBets,
     toggleBet,
     removeBet,
   };
