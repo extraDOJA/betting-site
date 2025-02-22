@@ -146,7 +146,7 @@ class Bet(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.user.username} - {self.match} ({self.get_bet_choice_display()})"
+        return f"{self.match} ({self.bet_slip})"
 
     @property
     def is_settled(self):
