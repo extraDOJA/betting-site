@@ -1,3 +1,4 @@
+import { formatBet } from "@/utils/formatBet";
 import React, { createContext, useContext, useState } from "react";
 
 const BetsContext = createContext();
@@ -21,16 +22,7 @@ export const BetsProvider = ({ children }) => {
       
       return {
         ...prev,
-        [matchId]: {
-          betType,
-          homeTeam: matchDetails.home_team,
-          awayTeam: matchDetails.away_team,
-          odds: betType === 'home' 
-            ? matchDetails.home_win_odds 
-            : betType === 'away' 
-            ? matchDetails.away_win_odds 
-            : matchDetails.draw_odds
-        }
+        [matchId]: formatBet(betType, matchDetails),
       };
     });
   };
