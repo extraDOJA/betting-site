@@ -1,6 +1,6 @@
 from drf_yasg.utils import swagger_auto_schema
 
-from sports.serializers import LeagueSerializer, MatchSerializer, SportWithLeaguesSerializer
+from sports.serializers import BetSlipCreateSerializer, LeagueSerializer, MatchSerializer, SportWithLeaguesSerializer
 
 popular_leagues_schema = swagger_auto_schema(
     method="get",
@@ -21,4 +21,12 @@ list_matches_schema = swagger_auto_schema(
     operation_description="Returns a list of upcoming matches",
     operation_summary="List matches",
     responses={200: MatchSerializer(many=True)},
+)
+
+bet_slip_create_schema = swagger_auto_schema(
+    method="post",
+    operation_description="Create a bet slip",
+    operation_summary="Create bet slip",
+    request_body= BetSlipCreateSerializer,
+    responses={200: BetSlipCreateSerializer},
 )
