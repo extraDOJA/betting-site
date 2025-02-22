@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth import get_user_model
 
 
 # Create your models here.
@@ -87,3 +88,96 @@ class Match(models.Model):
     @property
     def can_bet(self):
         return self.is_active and self.is_bet_available and self.status == "scheduled" and self.start_time > timezone.now()
+
+
+class BetSlip(models.Model):
+    SLIP_STATUS = (
+        ("pending", "Pending"),
+        ("active", "Active"),
+        ("won", "Won"),
+        ("lost", "Lost"),
+        ("canceled", "Canceled"),
+    )
+
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="bet_slips")
+    matches = models.ManyToManyField(Match, through="Bet", related_name="bet_slips")
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    total_odds = models.DecimalField(max_digits=7, decimal_places=2)
+    potential_win = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=10, choices=SLIP_STATUS, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["user", "status"]),
+        ]
+
+    def __str__(self):
+        return f"Slip #{self.id} - {self.user.username}"
+
+
+class Bet(models.Model):
+    BET_CHOICES = (
+        ("home", "Home Win"),
+        ("draw", "Draw"),
+        ("away", "Away Win"),
+    )
+
+    BET_STATUS = (
+        ("pending", "Pending"),
+        ("won", "Won"),
+        ("lost", "Lost"),
+        ("canceled", "Canceled"),
+    )
+
+    bet_slip = models.ForeignKey(BetSlip, on_delete=models.CASCADE, related_name="bets")
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name="bets")
+    bet_choice = models.CharField(max_length=4, choices=BET_CHOICES)
+    odds = models.DecimalField(max_digits=5, decimal_places=2)
+    status = models.CharField(max_length=8, choices=BET_STATUS, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["bet_slip", "status"]),
+            models.Index(fields=["match", "status"]),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.match} ({self.get_bet_choice_display()})"
+
+    @property
+    def is_settled(self):
+        return self.status in ["won", "lost", "canceled"]
+
+    def settle_bet(self):
+        """
+        Settle single bet and update bet slip status if needed
+        """
+        if self.match.is_finished and not self.is_settled:
+            if self.match.status == "canceled":
+                self.status = "canceled"
+            else:
+                if (self.bet_choice == "home" and self.match.home_score > self.match.away_score) or \
+                   (self.bet_choice == "away" and self.match.away_score > self.match.home_score) or \
+                   (self.bet_choice == "draw" and self.match.home_score == self.match.away_score):
+                    self.status = "won"
+                else:
+                    self.status = "lost"
+            self.save()
+            
+            bet_slip = self.bet_slip
+            all_bets_settled = all(bet.is_settled for bet in bet_slip.bets.all())
+            
+            if all_bets_settled:
+                if all(bet.status == "canceled" for bet in bet_slip.bets.all()):
+                    bet_slip.status = "canceled"
+                    bet_slip.user.add_balance(bet_slip.total_amount)
+                elif any(bet.status == "lost" for bet in bet_slip.bets.all()):
+                    bet_slip.status = "lost"
+                else:
+                    bet_slip.status = "won"
+                    bet_slip.user.add_balance(bet_slip.potential_win)
+                bet_slip.save()
