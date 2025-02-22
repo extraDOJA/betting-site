@@ -4,6 +4,13 @@ A sports betting application built with Django REST Framework and React.
 
 # Project Status
 
+![screencapture-127-0-0-1-5173-2025-02-22-11_44_42](https://github.com/user-attachments/assets/78b3ee22-76df-41e2-b303-faedb694ce35)
+
+![screencapture-127-0-0-1-5173-login-2025-02-22-11_44_55](https://github.com/user-attachments/assets/8270c1b6-7c2e-4d2f-b64b-0e5e08fc005f)
+
+![screencapture-127-0-0-1-5173-balance-2025-02-22-11_45_40](https://github.com/user-attachments/assets/8b86e130-f064-48f5-9620-4800dfecd912)
+
+
 ## Current Features
 
 ### Authentication System
