@@ -17,3 +17,10 @@ class CustomUser(AbstractUser):
             self.save()
             return True
         return False
+    
+    def substrat_balance(self, amount):
+        if amount > 0 and self.balance >= amount:
+            self.balance -= amount
+            self.save()
+            return True
+        return False
