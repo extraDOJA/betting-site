@@ -2,6 +2,29 @@
 
 A sports betting application built with Django REST Framework and React.
 
+# Project Status
+
+## Current Features
+
+### Authentication System
+- [x] JWT-based authentication
+- [x] User registration
+- [x] User login
+- [ ] Email verification
+- [ ] Password reset functionality
+
+### User Balance Management
+- [x] View current balance
+- [x] Add balance functionality
+
+### Betting System
+- [x] Home page with available bets
+- [x] Create new bets
+- [x] Place bets on available events
+- [ ] View user's active bets
+- [ ] Bet results processing
+- [ ] Winnings calculation
+
 ## System Requirements
 
 - Python 3.12+
