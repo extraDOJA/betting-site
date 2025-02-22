@@ -19,7 +19,7 @@ export const BetsProvider = ({ children }) => {
         const { [matchId]: _, ...rest } = prev;
         return rest;
       }
-      
+
       return {
         ...prev,
         [matchId]: formatBet(betType, matchDetails),
@@ -27,11 +27,13 @@ export const BetsProvider = ({ children }) => {
     });
   };
 
-  return (
-    <BetsContext.Provider value={{ selectedBets, toggleBet, removeBet }}>
-      {children}
-    </BetsContext.Provider>
-  );
+  const context = {
+    selectedBets,
+    toggleBet,
+    removeBet,
+  };
+
+  return <BetsContext.Provider value={context}>{children}</BetsContext.Provider>;
 };
 
 export const useBets = () => useContext(BetsContext);
