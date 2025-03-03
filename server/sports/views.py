@@ -2,10 +2,18 @@ from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
-from .models import Match, Sport, League
-from .serializers import BetSlipCreateSerializer, BetSlipResponseSerializer, LeagueSerializer, MatchSerializer, SportWithLeaguesSerializer
-from .swagger_docs import popular_leagues_schema, sports_with_leagues_schema, list_matches_schema, bet_slip_create_schema
+from .models import BetSlip, Match, Sport, League
+from .serializers import (
+    BetSlipCreateSerializer,
+    BetSlipResponseSerializer,
+    LeagueSerializer,
+    MatchSerializer,
+    SportWithLeaguesSerializer,
+    UserBetSlipSerializer,
+)
+from .swagger_docs import popular_leagues_schema, sports_with_leagues_schema, list_matches_schema, bet_slip_create_schema, user_bet_slips_schema
 
 
 @popular_leagues_schema
@@ -69,3 +77,43 @@ def create_bet_slip(request):
         return Response(response_data, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BetPagination(PageNumberPagination):
+    page_size = 5
+    page_size_query_param = "page_size"
+    max_page_size = 10
+
+
+@user_bet_slips_schema
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def user_bet_slips(request):
+    """
+    Get user's bet slips with optional filtering by status
+    """
+    status_filter = request.query_params.get("status")
+    user_bet_slips = BetSlip.objects.filter(user=request.user)
+
+    if status_filter:
+        if status_filter == "open":
+            # Open bets: pending or active
+            user_bet_slips = user_bet_slips.filter(status__in=["pending", "active"])
+        elif status_filter == "finished":
+            # Finished bets: lost or canceled
+            user_bet_slips = user_bet_slips.filter(status__in=["lost", "canceled"])
+        elif status_filter == "won":
+            # Won bets
+            user_bet_slips = user_bet_slips.filter(status="won")
+        else:
+            pass
+
+    paginator = BetPagination()
+    page = paginator.paginate_queryset(user_bet_slips, request)
+
+    if page is not None:
+        serializer = UserBetSlipSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+    serializer = UserBetSlipSerializer(user_bet_slips, many=True)
+    return Response(serializer.data)
