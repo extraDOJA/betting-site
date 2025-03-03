@@ -1,5 +1,5 @@
 import React from "react";
-import { BetItem } from "../atoms/BetItem";
+import BetItem from "@/components/atoms/Bet/BetItem";
 
 const BetsList = ({ betsCount, bets, onRemoveBet }) => {
   return (
