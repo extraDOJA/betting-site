@@ -1,5 +1,4 @@
 import React from "react";
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Link } from "react-router";
 
@@ -8,6 +7,10 @@ const navLinks = [
     title: "Profile",
     url: "#",
   },
+  {
+    title: "Bets",
+    url: "/user/bets",
+  }
 ];
 
 const UserNavigationMenu = ({ user }) => {

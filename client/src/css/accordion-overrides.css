@@ -1,0 +1,8 @@
+.custom-accordion .accordion-trigger {
+  border-bottom: none !important;
+  text-decoration: none !important;
+}
+
+.custom-accordion .accordion-trigger:hover {
+  text-decoration: none !important;
+}
