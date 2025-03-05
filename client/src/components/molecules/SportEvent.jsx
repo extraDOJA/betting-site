@@ -1,7 +1,7 @@
 import React from "react";
-import BetButton from "../atoms/BetButton";
 import { formatMatchDate } from "@/utils/formatMatchDate";
 import { useBets } from "@/context/betsContext";
+import BetButton from "@/components/atoms/Bet/BetButton";
 
 const SportEvent = ({ match }) => {
   const { selectedBets, toggleBet } = useBets();

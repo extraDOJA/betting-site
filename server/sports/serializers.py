@@ -126,3 +126,38 @@ class BetSlipResponseSerializer(serializers.ModelSerializer):
             'bets',
             'created_at'
         ]
+
+class UserBetSlipSerializer(serializers.ModelSerializer):
+    bets = BetSerializer(many=True, read_only=True, source='bets.all')
+    matches_data = serializers.SerializerMethodField()
+
+    class Meta:
+        model = BetSlip
+        fields = [
+            'id', 
+            'total_amount', 
+            'total_odds', 
+            'potential_win', 
+            'status', 
+            'created_at',
+            'bets',
+            'matches_data'
+        ]
+    
+    def get_matches_data(self, obj):
+        matches = []
+        # Get match data for each bet
+        for bet in obj.bets.all():
+            match_data = {
+                'id': bet.match.id,
+                'home_team': bet.match.home_team,
+                'away_team': bet.match.away_team,
+                'status': bet.match.status,
+                'home_score': bet.match.home_score,
+                'away_score': bet.match.away_score,
+                'start_time': bet.match.start_time,
+                'bet_choice': bet.bet_choice,
+                'odds': bet.odds
+            }
+            matches.append(match_data)
+        return matches

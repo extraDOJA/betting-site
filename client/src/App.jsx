@@ -5,6 +5,7 @@ import RegisterPage from "./pages/RegisterPage";
 import { Toaster } from "./components/ui/toaster";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import BalancePage from "./pages/BalancePage";
+import BetsPage from "./pages/BetsPage";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/balance" element={<BalancePage />} />
+          <Route path="/user/bets" element={<BetsPage />} />
         </Route>
         <Route path="*" element={<div>Not Found</div>} />
       </Routes>

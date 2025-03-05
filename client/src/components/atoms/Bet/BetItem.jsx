@@ -1,6 +1,6 @@
-import { Badge } from "../ui/badge";
+import { Badge } from "@/components/ui/badge";
 
-export const BetItem = ({ bet, matchId, onRemove }) => (
+const BetItem = ({ bet, matchId, onRemove }) => (
   <div className="p-2 rounded">
     <div className="flex items-center justify-between">
       <span className="text-xs">{`${bet.homeTeam} - ${bet.awayTeam}`}</span>
@@ -14,3 +14,5 @@ export const BetItem = ({ bet, matchId, onRemove }) => (
     </div>
   </div>
 );
+
+export default BetItem;
