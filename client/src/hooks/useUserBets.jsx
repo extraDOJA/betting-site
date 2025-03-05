@@ -23,7 +23,8 @@ const useUserBets = (initialFilter = null, initialPage = 1, pageSize = 5) => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetchUserBets(filter, currentPage, pageSize);
+        const filterToUse = filter || "open";
+        const response = await fetchUserBets(filterToUse, currentPage, pageSize);
 
         // Handle paginated response format (results + count)
         if (response.results && Array.isArray(response.results)) {
