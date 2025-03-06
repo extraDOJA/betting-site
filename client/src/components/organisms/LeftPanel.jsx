@@ -3,17 +3,23 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import ListItem from "../atoms/ListItem";
 import AccordionPanelItem from "../molecules/AccordionPanelItem";
 import { fetchPopularLeagues, fetchSportsWithLeagues } from "@/services/sportsService";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 const LeftPanel = () => {
   const [popular, setPopular] = useState([]);
   const [sports, setSports] = useState([]);
+  const { handleError } = useErrorHandler();
 
   useEffect(() => {
     const handleFetchData = async () => {
-      const popularLeagues = await fetchPopularLeagues();
-      const sportsWithLeagues = await fetchSportsWithLeagues();
-      setPopular(popularLeagues);
-      setSports(sportsWithLeagues);
+      try {
+        const popularLeagues = await fetchPopularLeagues();
+        const sportsWithLeagues = await fetchSportsWithLeagues();
+        setPopular(popularLeagues);
+        setSports(sportsWithLeagues);
+      } catch (err) {
+        handleError(err);
+      }
     };
     handleFetchData();
   }, []);

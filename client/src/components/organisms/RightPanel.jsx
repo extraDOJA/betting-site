@@ -7,6 +7,7 @@ import AuthContext from "@/context/authContext";
 import { createBetSlip } from "@/services/sportsService";
 import { useToast } from "@/hooks/use-toast";
 import { showErrorToast, showSuccessToast } from "@/services/toastService";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 const RightPanel = () => {
   const { user, handleSetBalance } = useContext(AuthContext);
@@ -14,6 +15,7 @@ const RightPanel = () => {
   const [stake, setStake] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { handleError } = useErrorHandler();
 
   const betsCount = Object.keys(selectedBets).length;
 
@@ -41,8 +43,7 @@ const RightPanel = () => {
       clearBets();
       setStake(0);
     } catch (error) {
-      const errorMessage = error.response?.data?.error || "An error occurred. Please try again later.";
-      showErrorToast(toast, errorMessage);
+      handleError(error);
     } finally {
       setIsLoading(false);
     }
