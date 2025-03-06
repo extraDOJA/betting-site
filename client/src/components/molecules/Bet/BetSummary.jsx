@@ -1,8 +1,9 @@
+import React from "react";
 import { Badge } from "../../ui/badge";
 import { Input } from "../../ui/input";
 
 
-export const BetSummary = ({ stake, betsCount, totalMultiplier, onStakeChange }) => (
+const BetSummary = ({ stake, betsCount, totalMultiplier, onStakeChange }) => (
   <div className="p-2 font-bold text-sm">
     <div className="flex justify-between mb-2 text-lg">
     <Input placeholder="Stake" type="number" min={0} className="max-w-[100px]" onChange={onStakeChange} />
@@ -14,3 +15,5 @@ export const BetSummary = ({ stake, betsCount, totalMultiplier, onStakeChange })
     </div>
   </div>
 );
+
+export default React.memo(BetSummary);

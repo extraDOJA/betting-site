@@ -17,4 +17,4 @@ const ListItem = ({ children, country = "EU", to="#" }) => {
   );
 };
 
-export default ListItem;
+export default React.memo(ListItem);

@@ -34,4 +34,4 @@ const BetsPagination = ({ currentPage, totalPages, onPageChange }) => {
   );
 };
 
-export default BetsPagination;
+export default React.memo(BetsPagination);
