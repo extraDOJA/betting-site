@@ -1,5 +1,6 @@
 import { fetchUserBets } from "@/services/sportsService";
 import { useCallback, useEffect, useState } from "react";
+import { useErrorHandler } from "./useErrorHandler";
 
 /**
  * Custom hook for managing user bets with filtering and pagination
@@ -17,6 +18,7 @@ const useUserBets = (initialFilter = null, initialPage = 1, pageSize = 5) => {
   const [page, setPage] = useState(initialPage);
   const [totalPages, setTotalPages] = useState(1);
   const [totalBets, setTotalBets] = useState(0);
+  const {handleError} = useErrorHandler();
 
   const fetchBets = useCallback(
     async (filter = activeFilter, currentPage = page) => {
@@ -47,13 +49,12 @@ const useUserBets = (initialFilter = null, initialPage = 1, pageSize = 5) => {
           setTotalBets(0);
         }
       } catch (err) {
-        console.error("Error fetching bets:", err);
-        setError(err.response?.data?.detail || "Failed to load bets. Please try again later.");
+        handleError(err);
       } finally {
         setLoading(false);
       }
     },
-    [activeFilter, page, pageSize]
+    [activeFilter, page, pageSize, handleError]
   );
 
   const changePage = useCallback(

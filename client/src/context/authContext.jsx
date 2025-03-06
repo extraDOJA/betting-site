@@ -3,12 +3,14 @@ import { jwtDecode } from "jwt-decode";
 import { createContext, useState, useEffect, useLayoutEffect } from "react";
 import { RequestInterceptor, ResponseInterceptor } from "@/utils/axiosInterceptors";
 import { fetchUserRequest, logoutRequest } from "@/services/authService";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null);
   const [user, setUser] = useState(null);
+  const {handleError} = useErrorHandler();
 
   const login = (token) => {
     setAccessToken(token);
@@ -34,7 +36,7 @@ export const AuthProvider = ({ children }) => {
         const response = await fetchUserRequest();
         login(response.accessToken);
       } catch (err) {
-        console.error(err);
+        handleError(err);
         logout();
       }
     };
