@@ -1,8 +1,8 @@
 import React, { useContext, useState } from "react";
 import { Button } from "../ui/button";
 import { useBets } from "@/context/betsContext";
-import { BetSummary } from "../molecules/BetSummary";
-import BetsList from "../molecules/BetsList";
+import { BetSummary } from "../molecules/Bet/BetSummary";
+import BetsList from "../molecules/Bet/BetsList";
 import AuthContext from "@/context/authContext";
 import { createBetSlip } from "@/services/sportsService";
 import { useToast } from "@/hooks/use-toast";

@@ -1,5 +1,5 @@
-import { Badge } from "../ui/badge";
-import { Input } from "../ui/input";
+import { Badge } from "../../ui/badge";
+import { Input } from "../../ui/input";
 
 
 export const BetSummary = ({ stake, betsCount, totalMultiplier, onStakeChange }) => (
