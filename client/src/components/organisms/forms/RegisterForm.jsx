@@ -4,6 +4,7 @@ import DynamicForm from "./DynamicForm";
 import { registerRequest } from "@/services/authService";
 import { useNavigate } from "react-router";
 import { useToast } from "@/hooks/use-toast";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 const RegisterFormSchema = z
   .object({
@@ -31,6 +32,7 @@ const fields = [
 const RegisterForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { handleFormError } = useErrorHandler();
 
   const onSubmit = async (data, setError) => {
     try {
@@ -38,10 +40,7 @@ const RegisterForm = () => {
       toast({ title: "Success", description: "Account created successfully" });
       navigate("/login");
     } catch (err) {
-      const errors = err.response.data;
-      Object.keys(errors).forEach((field) => {
-        setError(field, { type: "manual", message: errors[field][0] });
-      });
+      handleFormError(err, setError, "repeatPassword");
     }
   };
 
