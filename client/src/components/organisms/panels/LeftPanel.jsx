@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import ListItem from "../atoms/ListItem";
-import AccordionPanelItem from "../molecules/AccordionPanelItem";
+import ListItem from "../../atoms/ListItem";
+import AccordionPanelItem from "../../molecules/AccordionPanelItem";
 import { fetchPopularLeagues, fetchSportsWithLeagues } from "@/services/sportsService";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
 

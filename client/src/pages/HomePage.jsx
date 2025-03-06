@@ -1,7 +1,7 @@
 import HomeContent from "@/components/organisms/HomeContent";
-import LeftPanel from "@/components/organisms/LeftPanel";
-import Navbar from "@/components/organisms/Navbar";
-import RightPanel from "@/components/organisms/RightPanel";
+import LeftPanel from "@/components/organisms/panels/LeftPanel";
+import Navbar from "@/components/organisms/navigation/Navbar";
+import RightPanel from "@/components/organisms/panels/RightPanel";
 import { BetsProvider } from "@/context/betsContext";
 import React from "react";
 

@@ -1,13 +1,13 @@
 import React, { useContext, useState } from "react";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 import { useBets } from "@/context/betsContext";
-import { BetSummary } from "../molecules/Bet/BetSummary";
-import BetsList from "../molecules/Bet/BetsList";
+import { BetSummary } from "../../molecules/Bet/BetSummary";
 import AuthContext from "@/context/authContext";
 import { createBetSlip } from "@/services/sportsService";
 import { useToast } from "@/hooks/use-toast";
-import { showErrorToast, showSuccessToast } from "@/services/toastService";
+import { showSuccessToast } from "@/services/toastService";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
+import BetsList from "@/components/organisms/bet/BetsList";
 
 const RightPanel = () => {
   const { user, handleSetBalance } = useContext(AuthContext);

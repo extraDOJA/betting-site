@@ -1,5 +1,5 @@
 import React from "react";
-import { Skeleton } from "../ui/skeleton";
+import { Skeleton } from "../../ui/skeleton";
 import UserBetCard from "./UserBetCard";
 
 const UserBetsList = ({ bets, isLoading, emptyMessage }) => {
