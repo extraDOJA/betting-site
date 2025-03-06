@@ -22,6 +22,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const handleSetBalance = (amount) => {
+    if (typeof amount === "string") {
+      amount = parseFloat(amount);
+    }
     setUser((prev) => ({ ...prev, balance: amount.toFixed(2) }));
   };
 
