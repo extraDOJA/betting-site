@@ -1,3 +1,4 @@
+import { refreshTokenRequest } from "@/services/authService";
 import axios from "axios";
 
 const API_URL = "/accounts/api";
@@ -13,10 +14,13 @@ export const ResponseInterceptor = (handleAccessToken) =>
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
-      if (error.response.status === 401 && (error.response.data.detail === "Token is invalid or expired" || error.response.data.detail === "Authentication credentials were not provided.")) {
+      if (
+        error.response.status === 401 &&
+        (error.response.data.detail === "Token is invalid or expired" ||
+          error.response.data.detail === "Authentication credentials were not provided.")
+      ) {
         try {
-          const response = await axios.post(`${API_URL}/token/refresh/`);
-          const { access } = response.data;
+          const { access } = await refreshTokenRequest();
           handleAccessToken(access);
 
           originalRequest.headers.Authorization = `Bearer ${access}`;

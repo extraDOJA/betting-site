@@ -13,14 +13,9 @@ export const registerRequest = async (credentials) => {
 };
 
 export const refreshTokenRequest = async () => {
-  const response = await axios.post(`${API_URL}/token/refresh/`);
+  const response = await axios.get(`${API_URL}/token/refresh/`);
   return response.data;
 };
-
-export const fetchUserRequest = async () => {
-  const response = await axios.get(`${API_URL}/refresh-token/`);
-  return response.data;
-}
 
 export const logoutRequest = async () => {
   await axios.post(`${API_URL}/logout/`);

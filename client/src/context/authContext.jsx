@@ -2,7 +2,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { createContext, useState, useEffect, useLayoutEffect } from "react";
 import { RequestInterceptor, ResponseInterceptor } from "@/utils/axiosInterceptors";
-import { fetchUserRequest, logoutRequest } from "@/services/authService";
+import { logoutRequest, refreshTokenRequest } from "@/services/authService";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 const AuthContext = createContext();
@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetchUserRequest();
+        const response = await refreshTokenRequest();
         login(response.accessToken);
       } catch (err) {
         handleError(err, false);
