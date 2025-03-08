@@ -1,36 +1,47 @@
-import { refreshTokenRequest } from "@/services/authService";
 import axios from "axios";
 
-const API_URL = "/accounts/api";
+export const addRequestInterceptor = (axiosInstance, accessToken) => {
+  return axiosInstance.interceptors.request.use(
+    (config) => {
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
+};
 
-export const RequestInterceptor = (accessToken) =>
-  axios.interceptors.request.use((config) => {
-    config.headers.Authorization = !config._retry && accessToken ? `Bearer ${accessToken}` : config.headers.Authorization;
-    return config;
-  });
-
-export const ResponseInterceptor = (handleAccessToken) =>
-  axios.interceptors.response.use(
-    (response) => response,
+export const addResponseInterceptor = (axiosInstance, tokenCallback) => {
+  return axiosInstance.interceptors.response.use(
+    (response) => {
+      return response;
+    },
     async (error) => {
       const originalRequest = error.config;
-      if (
-        error.response.status === 401 &&
-        (error.response.data.detail === "Token is invalid or expired" ||
-          error.response.data.detail === "Authentication credentials were not provided.")
-      ) {
+      const refreshUrl = "/accounts/api/token/refresh/";
+
+      if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== refreshUrl) {
+        originalRequest._retry = true;
         try {
-          const { access } = await refreshTokenRequest();
-          handleAccessToken(access);
-
-          originalRequest.headers.Authorization = `Bearer ${access}`;
-          originalRequest._retry = true;
-
+          const refreshResponse = await axios.post(refreshUrl);
+          const newToken = refreshResponse.data.access;
+          tokenCallback(newToken);
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
           return axios(originalRequest);
-        } catch {
-          handleAccessToken(null);
+        } catch (refreshError) {
+          return Promise.reject(refreshError);
         }
       }
       return Promise.reject(error);
     }
   );
+};
+
+export const RequestInterceptor = (token) => {
+  return addRequestInterceptor(axios, token);
+};
+
+export const ResponseInterceptor = (tokenCallback) => {
+  return addResponseInterceptor(axios, tokenCallback);
+};
