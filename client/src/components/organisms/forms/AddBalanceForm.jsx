@@ -5,10 +5,10 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import AuthContext from "@/context/authContext";
-import { addBalance } from "@/services/userService";
 import { showSuccessToast } from "@/services/toastService";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
+import { userAdapter } from "@/services/api";
 
 const balanceSchema = z.object({
   amount: z.number({ invalid_type_error: "The amount must be a number" }).min(1, "The amount must be greater than 0"),
@@ -32,7 +32,7 @@ const AddBalanceForm = () => {
   const onSubmit = useCallback(
     async (data) => {
       try {
-        const result = await addBalance(data);
+        const result = await userAdapter.addBalance(data);
         handleSetBalance(result.balance);
         showSuccessToast(toast, result.message);
       } catch (err) {

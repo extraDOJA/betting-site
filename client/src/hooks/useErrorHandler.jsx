@@ -10,18 +10,17 @@ export const useErrorHandler = () => {
 
   // API error handling
   const handleError = useCallback(
-    (error) => {
-      return handleApiError(error, toast);
+    (error, showToast = true) => {
+      return handleApiError(error, toast, showToast);
     },
     [toast]
   );
 
   // Form error handling (integration with react-hook-form)
   const handleFormError = useCallback(
-    (error, setError, defaultField= "root") => {
+    (error, setError, defaultField = "root") => {
       // Try to map API errors to form fields
       const wasHandled = handleFormErrors(error, setError, defaultField);
-
 
       // If it wasn't possible to map to fields, show a general toast
       if (!wasHandled) {

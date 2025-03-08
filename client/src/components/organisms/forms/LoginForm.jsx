@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import DynamicForm from "./DynamicForm";
 import AuthContext from "@/context/authContext";
-import { loginRequest } from "@/services/authService";
+import { authAdapter } from "@/services/api";
 import { useLocation, useNavigate } from "react-router";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
 
@@ -15,7 +15,6 @@ const fields = [
   { name: "username", label: "Username", placeholder: "Login", type: "text", autoComplete: "username" },
   { name: "password", label: "Password", placeholder: "Password", type: "password", autoComplete: "current-password" },
 ];
-
 
 const LoginForm = () => {
   const { login, user } = useContext(AuthContext);
@@ -32,7 +31,7 @@ const LoginForm = () => {
 
   const onSubmit = async (data, setError) => {
     try {
-      const result = await loginRequest(data);
+      const result = await authAdapter.login(data);
       const accessToken = result.access;
       login(accessToken);
     } catch (err) {
