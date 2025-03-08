@@ -1,6 +1,6 @@
-import { fetchUserBets } from "@/services/sportsService";
 import { useCallback, useEffect, useState } from "react";
 import { useErrorHandler } from "./useErrorHandler";
+import { sportsAdapter } from "@/services/api";
 
 /**
  * Custom hook for managing user bets with filtering and pagination
@@ -26,7 +26,7 @@ const useUserBets = (initialFilter = null, initialPage = 1, pageSize = 5) => {
         setLoading(true);
         setError(null);
         const filterToUse = filter || "open";
-        const response = await fetchUserBets(filterToUse, currentPage, pageSize);
+        const response = await sportsAdapter.getUserBets(filterToUse, currentPage, pageSize);
 
         // Handle paginated response format (results + count)
         if (response.results && Array.isArray(response.results)) {

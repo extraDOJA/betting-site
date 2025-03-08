@@ -2,12 +2,12 @@ import React, { useContext, useState } from "react";
 import { Button } from "../../ui/button";
 import { useBets } from "@/context/betsContext";
 import AuthContext from "@/context/authContext";
-import { createBetSlip } from "@/services/sportsService";
 import { useToast } from "@/hooks/use-toast";
 import { showSuccessToast } from "@/services/toastService";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
 import BetsList from "@/components/organisms/bet/BetsList";
 import BetSummary from "@/components/molecules/Bet/BetSummary";
+import { sportsAdapter } from "@/services/api";
 
 const RightPanel = () => {
   const { user, handleSetBalance } = useContext(AuthContext);
@@ -36,7 +36,7 @@ const RightPanel = () => {
         })),
       };
 
-      const data = await createBetSlip(betSlipData);
+      const data = await sportsAdapter.createBetSlip(betSlipData);
       handleSetBalance(data.user_balance);
 
       showSuccessToast(toast, "Bet placed successfully!");

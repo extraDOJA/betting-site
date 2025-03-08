@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Accordion } from "@/components/ui/accordion";
 import ListItem from "../../atoms/ListItem";
 import AccordionPanelItem from "../../molecules/AccordionPanelItem";
-import { fetchPopularLeagues, fetchSportsWithLeagues } from "@/services/sportsService";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
+import { sportsAdapter } from "@/services/api";
 
 const LeftPanel = () => {
   const [popular, setPopular] = useState([]);
@@ -13,8 +13,8 @@ const LeftPanel = () => {
   useEffect(() => {
     const handleFetchData = async () => {
       try {
-        const popularLeagues = await fetchPopularLeagues();
-        const sportsWithLeagues = await fetchSportsWithLeagues();
+        const popularLeagues = await sportsAdapter.getPopularLeagues();
+        const sportsWithLeagues = await sportsAdapter.getSportsWithLeagues();
         setPopular(popularLeagues);
         setSports(sportsWithLeagues);
       } catch (err) {
