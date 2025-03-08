@@ -23,10 +23,10 @@ export const formatErrorMessage = (error) => {
 };
 
 // Main function for handling API errors
-export const handleApiError = (error, toast) => {
+export const handleApiError = (error, toast, showToast = true) => {
   const errorMessage = formatErrorMessage(error);
 
-  if (toast) {
+  if (toast && showToast) {
     toast({
       title: "Error",
       description: errorMessage,

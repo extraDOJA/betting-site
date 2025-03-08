@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
         const response = await fetchUserRequest();
         login(response.accessToken);
       } catch (err) {
-        handleError(err);
+        handleError(err, false);
         logout();
       }
     };
