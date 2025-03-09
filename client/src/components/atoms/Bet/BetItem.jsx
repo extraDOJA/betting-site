@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import React from "react";
 
 const BetItem = ({ bet, matchId, onRemove }) => (
   <div className="p-2 rounded">
@@ -15,4 +16,4 @@ const BetItem = ({ bet, matchId, onRemove }) => (
   </div>
 );
 
-export default BetItem;
+export default React.memo(BetItem);

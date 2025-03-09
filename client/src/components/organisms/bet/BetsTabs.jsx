@@ -1,9 +1,9 @@
 import React from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
 import useUserBets from "@/hooks/useUserBets";
 import UserBetsList from "./UserBetsList";
 import { motion } from "framer-motion";
-import BetsPagination from "../molecules/BetsPagination";
+import BetsPagination from "../../molecules/Bet/BetsPagination";
 
 const BetsTabs = () => {
   const { groupedBets, loading, changeFilter, page, totalPages, changePage } = useUserBets();

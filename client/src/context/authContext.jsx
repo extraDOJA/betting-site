@@ -1,14 +1,23 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { createContext, useState, useEffect, useLayoutEffect } from "react";
+import { createContext, useState, useEffect, useLayoutEffect, useCallback } from "react";
 import { RequestInterceptor, ResponseInterceptor } from "@/utils/axiosInterceptors";
-import { fetchUserRequest, logoutRequest } from "@/services/authService";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
+import { authAdapter, apiService } from "@/services/api";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null);
   const [user, setUser] = useState(null);
+  const { handleError } = useErrorHandler();
+
+  useEffect(() => {
+    apiService.setupTokenHandlers(
+      () => accessToken,
+      (newToken) => setAccessToken(newToken)
+    );
+  }, [accessToken]);
 
   const login = (token) => {
     setAccessToken(token);
@@ -18,20 +27,23 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setAccessToken(null);
     setUser(null);
-    logoutRequest();
+    authAdapter.logout();
   };
 
   const handleSetBalance = (amount) => {
+    if (typeof amount === "string") {
+      amount = parseFloat(amount);
+    }
     setUser((prev) => ({ ...prev, balance: amount.toFixed(2) }));
   };
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetchUserRequest();
+        const response = await authAdapter.refreshToken();
         login(response.accessToken);
       } catch (err) {
-        console.error(err);
+        handleError(err, false);
         logout();
       }
     };

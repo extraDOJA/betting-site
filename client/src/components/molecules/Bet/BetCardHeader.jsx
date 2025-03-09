@@ -2,7 +2,7 @@ import React from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import StatusBadge from "@/components/atoms/StatusBadge";
-import MatchItem from "./MatchItem";
+import MatchItem from "../MatchItem";
 
 const BetCardHeader = ({ bet }) => {
   const getBetTitle = () => {

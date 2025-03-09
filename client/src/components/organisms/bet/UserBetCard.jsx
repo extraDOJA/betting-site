@@ -1,8 +1,8 @@
 import React from "react";
-import { Card, CardContent, CardFooter } from "../ui/card";
-import BetCardHeader from "@/components/molecules/BetCardHeader";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import BetCardHeader from "@/components/molecules/Bet/BetCardHeader";
 import "@/css/accordion-overrides.css";
-import BetInfoSummary from "@/components/molecules/BetInfoSummary";
+import BetInfoSummary from "@/components/molecules/Bet/BetInfoSummary";
 import DateDisplay from "@/components/atoms/DateDisplay";
 
 const UserBetCard = ({ bet }) => {

@@ -1,19 +1,21 @@
 import React, { useContext, useState } from "react";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 import { useBets } from "@/context/betsContext";
-import { BetSummary } from "../molecules/BetSummary";
-import BetsList from "../molecules/BetsList";
 import AuthContext from "@/context/authContext";
-import { createBetSlip } from "@/services/sportsService";
 import { useToast } from "@/hooks/use-toast";
-import { showErrorToast, showSuccessToast } from "@/services/toastService";
+import { showSuccessToast } from "@/services/toastService";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
+import BetsList from "@/components/organisms/bet/BetsList";
+import BetSummary from "@/components/molecules/Bet/BetSummary";
+import { sportsAdapter } from "@/services/api";
 
 const RightPanel = () => {
   const { user, handleSetBalance } = useContext(AuthContext);
   const { selectedBets, removeBet, clearBets } = useBets();
-  const [stake, setStake] = useState(0);
+  const [stake, setStake] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { handleError } = useErrorHandler();
 
   const betsCount = Object.keys(selectedBets).length;
 
@@ -34,15 +36,14 @@ const RightPanel = () => {
         })),
       };
 
-      const data = await createBetSlip(betSlipData);
+      const data = await sportsAdapter.createBetSlip(betSlipData);
       handleSetBalance(data.user_balance);
 
       showSuccessToast(toast, "Bet placed successfully!");
       clearBets();
-      setStake(0);
+      setStake("");
     } catch (error) {
-      const errorMessage = error.response?.data?.error || "An error occurred. Please try again later.";
-      showErrorToast(toast, errorMessage);
+      handleError(error);
     } finally {
       setIsLoading(false);
     }

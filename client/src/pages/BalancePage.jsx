@@ -1,5 +1,5 @@
 import AddBalanceForm from "@/components/organisms/forms/AddBalanceForm";
-import Navbar from "@/components/organisms/Navbar";
+import Navbar from "@/components/organisms/navigation/Navbar";
 import React from "react";
 
 const BalancePage = () => {

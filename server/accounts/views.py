@@ -67,7 +67,7 @@ class AddBalanceView(APIView):
     permission_classes = [IsAuthenticated]
 
     @add_balance_schema
-    def post(self, request):
+    def put(self, request):
         serializer = AddBalanceSerializer(data=request.data)
         if serializer.is_valid():
             amount = serializer.validated_data.get("amount")

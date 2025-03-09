@@ -16,4 +16,4 @@ const StatusBadge = ({ status, className = "" }) => {
   );
 };
 
-export default StatusBadge;
+export default React.memo(StatusBadge);
