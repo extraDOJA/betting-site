@@ -10,6 +10,7 @@ A sports betting application built with Django REST Framework and React.
 
 ![screencapture-127-0-0-1-5173-balance-2025-02-22-11_45_40](https://github.com/user-attachments/assets/8b86e130-f064-48f5-9620-4800dfecd912)
 
+![screencapture-localhost-5173-user-bets-2025-03-09-10_02_19](https://github.com/user-attachments/assets/603e0225-7178-419f-8ed3-cdb3ba75a1be)
 
 ## Current Features
 
@@ -28,7 +29,7 @@ A sports betting application built with Django REST Framework and React.
 - [x] Home page with available bets
 - [x] Create new bets
 - [x] Place bets on available events
-- [ ] View user's active bets
+- [x] View user's active bets
 - [ ] Bet results processing
 - [ ] Winnings calculation
 
