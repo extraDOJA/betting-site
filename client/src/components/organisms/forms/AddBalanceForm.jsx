@@ -20,6 +20,7 @@ const AddBalanceForm = () => {
     handleSubmit,
     formState: { errors },
     setError,
+    reset,
   } = useForm({
     resolver: zodResolver(balanceSchema),
     defaultValues: { amount: 0 },
@@ -35,6 +36,7 @@ const AddBalanceForm = () => {
         const result = await userAdapter.addBalance(data);
         handleSetBalance(result.balance);
         showSuccessToast(toast, result.message);
+        reset();
       } catch (err) {
         handleFormError(err, setError, "amount");
       }
