@@ -12,7 +12,7 @@ import { sportsAdapter } from "@/services/api";
 const RightPanel = () => {
   const { user, handleSetBalance } = useContext(AuthContext);
   const { selectedBets, removeBet, clearBets } = useBets();
-  const [stake, setStake] = useState(0);
+  const [stake, setStake] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { handleError } = useErrorHandler();
@@ -41,7 +41,7 @@ const RightPanel = () => {
 
       showSuccessToast(toast, "Bet placed successfully!");
       clearBets();
-      setStake(0);
+      setStake("");
     } catch (error) {
       handleError(error);
     } finally {
