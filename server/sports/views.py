@@ -1,4 +1,5 @@
 from django.utils import timezone
+from django.db.models import Q
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -44,7 +45,13 @@ def list_popular_matches(request):
     """
     Get list of upcoming popular matches
     """
-    matches = Match.objects.filter(is_active=True, is_popular=True, start_time__gte=timezone.now()).order_by("start_time")[:15]
+    now = timezone.now() 
+
+    matches = (
+        Match.objects.filter(is_active=True, is_popular=True)
+        .filter(Q(status="live") | Q(status="scheduled", start_time__gte=now))
+        .order_by("-status", "start_time")[:15]
+    )
     serializer = MatchSerializer(matches, many=True)
     return Response(serializer.data)
 
