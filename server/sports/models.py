@@ -160,17 +160,20 @@ class Bet(models.Model):
             if self.match.status == "canceled":
                 self.status = "canceled"
             else:
-                if (self.bet_choice == "home" and self.match.home_score > self.match.away_score) or \
-                   (self.bet_choice == "away" and self.match.away_score > self.match.home_score) or \
-                   (self.bet_choice == "draw" and self.match.home_score == self.match.away_score):
+                if (
+                    (self.bet_choice == "home" and self.match.home_score > self.match.away_score)
+                    or (self.bet_choice == "away" and self.match.away_score > self.match.home_score)
+                    or (self.bet_choice == "draw" and self.match.home_score == self.match.away_score)
+                ):
                     self.status = "won"
                 else:
                     self.status = "lost"
             self.save()
-            
+
+
             bet_slip = self.bet_slip
             all_bets_settled = all(bet.is_settled for bet in bet_slip.bets.all())
-            
+
             if all_bets_settled:
                 if all(bet.status == "canceled" for bet in bet_slip.bets.all()):
                     bet_slip.status = "canceled"
