@@ -32,6 +32,7 @@ A sports betting application built with Django REST Framework and React.
 - [x] View user's active bets
 - [x] Bet results processing (When the status of the match is changed to finished)
 - [x] Winnings calculation
+- [x] Persistent bet selections with auto-validation on page refresh
 
 ## System Requirements
 
