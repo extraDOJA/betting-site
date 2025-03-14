@@ -8,6 +8,7 @@ const SPORTS_URLS = {
   POPULAR_MATCHES: "/matches/popular/",
   BET: "/bet/",
   BETS: "/bets/",
+  VALIDATE_BETS: "/bets/validate/",
 };
 
 // Create the SportAdapter class
@@ -36,6 +37,10 @@ class SportsAdapter {
 
   async createBetSlip(betSlipData) {
     return this.client.post(SPORTS_URLS.BET, betSlipData);
+  }
+
+  async validateBetsAvailability(betSlipData) {
+    return this.client.post(SPORTS_URLS.VALIDATE_BETS, betSlipData);
   }
 }
 

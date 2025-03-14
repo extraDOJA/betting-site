@@ -45,7 +45,7 @@ def list_popular_matches(request):
     """
     Get list of upcoming popular matches
     """
-    now = timezone.now() 
+    now = timezone.now()
 
     matches = (
         Match.objects.filter(is_active=True, is_popular=True)
@@ -124,3 +124,34 @@ def user_bet_slips(request):
 
     serializer = UserBetSlipSerializer(user_bet_slips, many=True)
     return Response(serializer.data)
+
+
+@api_view(["POST"])
+def validate_bets_availability(request):
+    """
+    Validate if bets are available
+    """
+    match_ids = request.data.get("matchIds", [])
+
+    # If no match IDs are provided, return an empty response as all bets are available
+    if not match_ids:
+        return Response([], status=status.HTTP_200_OK)
+
+    matches = Match.objects.filter(id__in=match_ids)
+
+    # Return only matches that are available for betting
+    response_data = []
+    for match in matches:
+        if match.can_bet:
+            response_data.append(
+                {
+                    "id": match.id,
+                    "can_bet": match.can_bet,
+                    "status": match.status,
+                    "start_time": match.start_time,
+                    "home_team": match.home_team,
+                    "away_team": match.away_team,
+                }
+            )
+
+    return Response(response_data, status=status.HTTP_200_OK)
