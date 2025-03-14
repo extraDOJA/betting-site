@@ -10,14 +10,14 @@ const HomePage = () => {
     <div className="w-full h-screen">
       <Navbar />
       <BetsProvider>
-      <main className="min-w-[1024px] h-full w-full pt-[75px] grid grid-cols-8 md:grid-cols-9 ">
-        <section className="col-span-2">
+      <main className="min-w-[1024px] h-full w-full pt-[75px] grid grid-cols-8 lg:grid-cols-9 ">
+        <section className="col-span-2 lg:col-span-2">
           <LeftPanel />
         </section>
-        <section className="col-span-4 md:col-span-5">
+        <section className="col-span-4 lg:col-span-5 px-4 lg:px-2">
           <HomeContent />
         </section>
-        <section className="col-span-2">
+        <section className="col-span-2 lg:col-span-2">
           <RightPanel />
         </section>
       </main>

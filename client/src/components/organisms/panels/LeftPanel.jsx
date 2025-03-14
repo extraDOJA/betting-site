@@ -25,7 +25,7 @@ const LeftPanel = () => {
   }, []);
 
   return (
-    <div className="p-6 mx-10">
+    <div className="max-w-[350px] mx-auto">
       <div className="space-y-6">
         <section>
           <h2 className="text-lg font-semibold mb-3 text-gray-800">Popular</h2>
