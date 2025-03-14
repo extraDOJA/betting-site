@@ -1,3 +1,4 @@
+import { sportsAdapter } from "@/services/api";
 import { formatBet } from "@/utils/formatBet";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
@@ -22,6 +23,31 @@ export const BetsProvider = ({ children }) => {
       console.error("Error saving bets to localStorage", err);
     }
   }, [selectedBets]);
+
+  useEffect(() => {
+    // Validate bets on component mount and remove any unavailable bets
+    const validateBets = async () => {
+      const matchIds = Object.keys(selectedBets);
+
+      if (matchIds.length === 0) return;
+
+      try {
+        const availableMatches = await sportsAdapter.validateBetsAvailability({ matchIds });
+        const availableMatchIds = new Set(availableMatches.map(match => match.id.toString()));
+        const unavailableMatchIds = matchIds.filter(id => !availableMatchIds.has(id));
+
+        if (unavailableMatchIds.length > 0) {
+          unavailableMatchIds.forEach((id) => {
+            removeBet(id);
+          });
+        }
+      } catch (err) {
+        console.error("Error validating bets", err);
+      }
+    };
+
+    validateBets();
+  }, []);
 
   const clearBets = () => setSelectedBets({});
 
