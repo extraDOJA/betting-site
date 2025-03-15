@@ -6,12 +6,14 @@ import { Toaster } from "./components/ui/toaster";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import BalancePage from "./pages/BalancePage";
 import BetsPage from "./pages/BetsPage";
+import LeaguePage from "./pages/LeaguePage";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/league/:leagueSlug" element={<LeaguePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route element={<ProtectedRoute />}>
