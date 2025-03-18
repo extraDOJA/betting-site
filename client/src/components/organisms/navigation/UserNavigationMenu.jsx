@@ -3,10 +3,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Link } from "react-router";
 
 const navLinks = [
-  {
-    title: "Profile",
-    url: "#",
-  },
+  // {
+  //   title: "Profile",
+  //   url: "#",
+  // },
   {
     title: "Bets",
     url: "/user/bets",
