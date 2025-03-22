@@ -43,8 +43,8 @@ class FlashscoreParser(Parser):
 
                 matches.append(
                     {
-                        "flashscore_id": match_id,
-                        "flashscore_link": match_link,
+                        "id": match_id,
+                        "url": match_link,
                         "home_team": home_team_name,
                         "away_team": away_team_name,
                         "start_time": match_datetime,
@@ -77,7 +77,6 @@ class FlashscoreParser(Parser):
             date_obj = self._parse_date(date_str)
             time_obj = self._parse_time(time_str)
             
-            print(f"Parsed date: {date_obj}, time: {time_obj}")
             return datetime.datetime.combine(date_obj, time_obj)
         except Exception as e:
             print(f"Error parsing datetime: {e}, time: '{time_str}'")
