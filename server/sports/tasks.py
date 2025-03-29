@@ -89,3 +89,39 @@ def import_league_matches(league):
     except Exception as e:
         logger.error(f"Error importing matches for league {league.name}: {e}", exc_info=True)
         return {"status": "failed", "error": str(e)}
+
+
+def import_match_odds(match: Match):
+    """
+    Import odds for a specific match.
+    """
+    if not match.source_url:
+        logger.warning(f"No source URL for league: {match.name}")
+        return {"status": "failed", "error": "No source URL for league."}
+    
+    scrapper = ScrapperFactory.create_scrapper(match.league.data_source)
+
+    if not scrapper:
+        logger.warning(f"No scrapper found for data source: {match.league.data_source}")
+        return {"status": "failed", "error": "No scrapper found."}
+    
+    try:
+        odds = scrapper.get_match(match.source_url)
+
+        if not odds:
+            logger.warning(f"No odds found for match: {match.id}")
+            return {"status": "failed", "error": "No odds found."}
+
+        with transaction.atomic():
+            match.home_win_odds = odds.get("home_odds")
+            match.draw_odds = odds.get("draw_odds")
+            match.away_win_odds = odds.get("away_odds")
+            match.status = "scheduled"
+            match.save()
+
+        logger.info(f"Imported odds for match: {match.id}")
+        return {"status": "success", "odds": odds}
+    except Exception as e:
+        logger.error(f"Error importing odds for match {match.id}: {e}", exc_info=True)
+        return {"status": "failed", "error": str(e)}
+    
