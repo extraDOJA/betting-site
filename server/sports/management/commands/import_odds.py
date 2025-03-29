@@ -14,7 +14,7 @@ class Command(BaseCommand):
         """
         now = timezone.now()
         one_week_later = now + timezone.timedelta(weeks=1)
-        match = Match.objects.filter(is_active=True, status="prepared", start_time__gte=now, start_time__lte=one_week_later).first()
+        match = Match.objects.filter(is_active=True, status__in=["prepared", "scheduled"], start_time__gte=now, start_time__lte=one_week_later).first()
 
         if not match:
             return self.stdout.write(self.style.WARNING("No active matches found."))
