@@ -8,7 +8,7 @@ class FlashscoreParser(Parser):
     """
     Parser for Flashscore HTML content.
     """
-    
+
     def parse_fixtures_page(self, html):
         """
         Parse a Flashscore fixtures page with multiple matches.
@@ -22,7 +22,7 @@ class FlashscoreParser(Parser):
             try:
                 match_id = row.get("id", "").replace("g_1_", "")
                 match_link = row.select_one(".eventRowLink").get("href", "")
-                
+
                 if not match_id:
                     continue
 
@@ -37,7 +37,6 @@ class FlashscoreParser(Parser):
 
                 time_element = row.select_one(".event__time")
                 match_time = time_element.text.strip() if time_element else "00:00"
-
 
                 match_datetime = self.parse_datetime(match_time)
 
@@ -56,14 +55,14 @@ class FlashscoreParser(Parser):
                 continue
 
         return matches
-        
+
     def parse_match_page(self, html):
         """
         Parse a single match page from Flashscore.
         """
         soup = BeautifulSoup(html, "html.parser")
         match_data = {}
-        
+
         try:
             odds_container = soup.select(".wclOddsContent")[1]
 
@@ -80,7 +79,14 @@ class FlashscoreParser(Parser):
                                 draw_odds = spans[1].text.strip()
                                 away_odds = spans[2].text.strip()
 
-                                if home_odds and home_odds != "-" and draw_odds and draw_odds != "-" and away_odds and away_odds != "-":
+                                if (
+                                    home_odds
+                                    and home_odds != "-"
+                                    and draw_odds
+                                    and draw_odds != "-"
+                                    and away_odds
+                                    and away_odds != "-"
+                                ):
                                     match_data["home_odds"] = home_odds
                                     match_data["draw_odds"] = draw_odds
                                     match_data["away_odds"] = away_odds
@@ -92,20 +98,20 @@ class FlashscoreParser(Parser):
             print(f"Error parsing match page: {e}")
 
         return match_data
-        
+
     def parse_datetime(self, time_str):
         """
         Parse date and time strings into a datetime object.
         """
         try:
-            data = time_str.split(' ')
+            data = time_str.split(" ")
 
             date_str = data[0]
             time_str = data[1] if len(data) > 1 else "00:00"
 
             date_obj = self._parse_date(date_str)
             time_obj = self._parse_time(time_str)
-            
+
             return datetime.datetime.combine(date_obj, time_obj)
         except Exception as e:
             print(f"Error parsing datetime: {e}, time: '{time_str}'")
@@ -118,13 +124,16 @@ class FlashscoreParser(Parser):
         if not date_str:
             return datetime.datetime.now().date()
 
-        date_parts = [part for part in date_str.split('.') if part.strip()]
+        date_parts = [part for part in date_str.split(".") if part.strip()]
         if len(date_parts) >= 3:
             day, month, year = map(int, date_parts)
         elif len(date_parts) >= 2:
             day, month = map(int, date_parts)
             year = datetime.datetime.now().year
-            if month < datetime.datetime.now().month or (month == datetime.datetime.now().month and day < datetime.datetime.now().day):
+            if month < datetime.datetime.now().month or (
+                month == datetime.datetime.now().month
+                and day < datetime.datetime.now().day
+            ):
                 year += 1
         else:
             return datetime.datetime.now().date()
@@ -135,8 +144,8 @@ class FlashscoreParser(Parser):
         """
         Parse time string into a time object.
         """
-        if ':' in time_str:
-            hour, minute = map(int, time_str.split(':'))
+        if ":" in time_str:
+            hour, minute = map(int, time_str.split(":"))
         else:
             hour, minute = 0, 0
 
