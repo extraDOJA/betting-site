@@ -64,6 +64,15 @@ class FlashscoreParser(Parser):
         match_data = {}
 
         try:
+            # Extract match queue text
+            breadcrumbs_container = soup.select_one("div.detail__breadcrumbs")
+            if breadcrumbs_container:
+                breadcrumbs_items = breadcrumbs_container.select("li")
+                if breadcrumbs_items and len(breadcrumbs_items) > 0:
+                    last_breadcrumb = breadcrumbs_items[-1]
+                    league_round_text = last_breadcrumb.text.strip()
+                    match_data["round"] = league_round_text
+            
             odds_container = soup.select(".wclOddsContent")[1]
 
             if odds_container:
