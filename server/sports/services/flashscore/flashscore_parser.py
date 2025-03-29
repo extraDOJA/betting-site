@@ -61,8 +61,37 @@ class FlashscoreParser(Parser):
         """
         Parse a single match page from Flashscore.
         """
-        # soup = BeautifulSoup(html, "html.parser")
-        return {} 
+        soup = BeautifulSoup(html, "html.parser")
+        match_data = {}
+        
+        try:
+            odds_container = soup.select(".wclOddsContent")[1]
+
+            if odds_container:
+                odds_rows = soup.select(".wclOddsRow")
+
+                if odds_rows:
+                    for row in odds_rows:
+                        spans = row.select('span[data-testid="wcl-oddsValue"]')
+
+                        if len(spans) >= 3:
+                            try:
+                                home_odds = spans[0].text.strip()
+                                draw_odds = spans[1].text.strip()
+                                away_odds = spans[2].text.strip()
+
+                                if home_odds and home_odds != "-" and draw_odds and draw_odds != "-" and away_odds and away_odds != "-":
+                                    match_data["home_odds"] = home_odds
+                                    match_data["draw_odds"] = draw_odds
+                                    match_data["away_odds"] = away_odds
+                                    break
+                            except (ValueError, IndexError) as e:
+                                print(f"Error parsing odds values: {e}")
+                                continue
+        except Exception as e:
+            print(f"Error parsing match page: {e}")
+
+        return match_data
         
     def parse_datetime(self, time_str):
         """
