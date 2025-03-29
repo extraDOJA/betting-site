@@ -50,11 +50,9 @@ class FlashscoreScrapper(Scrapper):
     def get_league_matches(self, league_url):
         return self.get_matches_by_url(league_url)
 
-    def get_match(self, match_id):
-        url = f"{self.base_url}/mecz/{match_id}/"
-        
+    def get_match(self, match_url):
         with BrowserContext(self._setup_browser) as browser:
-            html = self._fetch_page(url, browser)
+            html = self._fetch_page(match_url, browser)
             if not html:
                 return {}
             
