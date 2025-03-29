@@ -108,16 +108,17 @@ def import_match_odds(match: Match):
         return {"status": "failed", "error": "No scrapper found."}
     
     try:
-        odds = scrapper.get_match(match.source_url)
+        match_data = scrapper.get_match(match.source_url)
 
-        if not odds:
+        if not match_data:
             logger.warning(f"No odds found for match: {match.id}")
             return {"status": "failed", "error": "No odds found."}
 
         with transaction.atomic():
-            match.home_win_odds = odds.get("home_odds")
-            match.draw_odds = odds.get("draw_odds")
-            match.away_win_odds = odds.get("away_odds")
+            match.home_win_odds = match_data.get("home_odds")
+            match.draw_odds = match_data.get("draw_odds")
+            match.away_win_odds = match_data.get("away_odds")
+            match.queue = match_data.get("round")
             match.status = "scheduled"
             match.is_bet_available = True
             
@@ -129,7 +130,7 @@ def import_match_odds(match: Match):
             match.save()
 
         logger.info(f"Imported odds for match: {match.id}")
-        return {"status": "success", "odds": odds}
+        return {"status": "success", "match_data": match_data}
     except Exception as e:
         logger.error(f"Error importing odds for match {match.id}: {e}", exc_info=True)
         return {"status": "failed", "error": str(e)}
@@ -151,7 +152,7 @@ def import_upcoming_matches_odds(self):
             start_time__gte=now,
             start_time__lte=three_days_later,
             source_url__isnull=False,
-            status="prepared",
+            status__in=["prepared", "scheduled"],
             is_active=True
         )
         
