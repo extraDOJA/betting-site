@@ -72,7 +72,21 @@ class FlashscoreParser(Parser):
                     last_breadcrumb = breadcrumbs_items[-1]
                     league_round_text = last_breadcrumb.text.strip()
                     match_data["round"] = league_round_text
-            
+
+            status_container = soup.select_one("span.fixedHeaderDuel__detailStatus")
+            match_data["is_finished"] = self._is_match_finished(status_container)
+
+            if match_data["is_finished"]:
+                match_data["home_odds"] = "-"
+                match_data["draw_odds"] = "-"
+                match_data["away_odds"] = "-"
+
+                score_container = soup.select_one("div.detailScore__wrapper")
+                if score_container:
+                    score_text = score_container.text.strip()
+                    match_data["home_score"], match_data["away_score"] = self._parse_score(score_text)
+                return match_data
+
             odds_container = soup.select(".wclOddsContent")[1]
 
             if odds_container:
@@ -88,14 +102,7 @@ class FlashscoreParser(Parser):
                                 draw_odds = spans[1].text.strip()
                                 away_odds = spans[2].text.strip()
 
-                                if (
-                                    home_odds
-                                    and home_odds != "-"
-                                    and draw_odds
-                                    and draw_odds != "-"
-                                    and away_odds
-                                    and away_odds != "-"
-                                ):
+                                if home_odds and home_odds != "-" and draw_odds and draw_odds != "-" and away_odds and away_odds != "-":
                                     match_data["home_odds"] = home_odds
                                     match_data["draw_odds"] = draw_odds
                                     match_data["away_odds"] = away_odds
@@ -139,10 +146,7 @@ class FlashscoreParser(Parser):
         elif len(date_parts) >= 2:
             day, month = map(int, date_parts)
             year = datetime.datetime.now().year
-            if month < datetime.datetime.now().month or (
-                month == datetime.datetime.now().month
-                and day < datetime.datetime.now().day
-            ):
+            if month < datetime.datetime.now().month or (month == datetime.datetime.now().month and day < datetime.datetime.now().day):
                 year += 1
         else:
             return datetime.datetime.now().date()
@@ -159,3 +163,35 @@ class FlashscoreParser(Parser):
             hour, minute = 0, 0
 
         return datetime.time(hour, minute)
+
+    def _is_match_finished(self, status_container):
+        """
+        Check if the match is finished, considering both Polish and English languages.
+        """
+        # Dictionary of status keywords that indicate a finished match in different languages
+        status_keywords = {"en": ["finished", "ended", "ft", "full-time"], "pl": ["zakończony", "zakończona", "koniec"]}
+
+        if not status_container:
+            return False
+
+        status_text = status_container.text.strip().lower()
+
+        # Check all language variants
+        for language, keywords in status_keywords.items():
+            if any(keyword in status_text for keyword in keywords):
+                return True
+
+        return False
+
+    def _parse_score(self, score_str):
+        """
+        Parse the score string into a tuple of integers.
+        """
+        try:
+            home_score, away_score = map(int, score_str.split("-"))
+            return home_score, away_score
+        except ValueError:
+            return 0, 0
+        except Exception as e:
+            print(f"Error parsing score: {e}")
+            return 0, 0
