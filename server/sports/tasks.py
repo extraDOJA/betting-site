@@ -113,6 +113,14 @@ def import_match_odds(match: Match):
         if not match_data:
             logger.warning(f"No odds found for match: {match.id}")
             return {"status": "failed", "error": "No odds found."}
+        
+        if match_data.get("is_finished"):
+            match.home_score = match_data.get("home_score")
+            match.away_score = match_data.get("away_score")
+            match.status = "finished"
+            match.is_bet_available = False
+            match.save()
+            return
 
         with transaction.atomic():
             match.home_win_odds = match_data.get("home_odds")
