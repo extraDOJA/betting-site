@@ -18,6 +18,10 @@ class Sport(models.Model):
 
 
 class League(models.Model):
+    SOURCE_CHOICES = (
+        ("flashscore", "Flashscore"),
+    )
+
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
     sport = models.ForeignKey(Sport, on_delete=models.CASCADE, related_name="leagues")
@@ -25,6 +29,9 @@ class League(models.Model):
     is_active = models.BooleanField(default=True)
     is_popular = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    data_source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default="flashscore")
+    source_url = models.CharField(max_length=255, null=True, blank=True, unique=True)
 
     @property
     def url_path(self):
@@ -44,6 +51,7 @@ class Match(models.Model):
         ("finished", "Finished"),
         ("postponed", "Postponed"),
         ("canceled", "Canceled"),
+        ("prepared", "Prepared"),
     )
 
     league = models.ForeignKey(League, on_delete=models.CASCADE, related_name="matches")
@@ -51,7 +59,7 @@ class Match(models.Model):
     home_team = models.CharField(max_length=100)
     away_team = models.CharField(max_length=100)
     start_time = models.DateTimeField()
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="scheduled")
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="prepared")
 
     home_score = models.PositiveIntegerField(null=True, blank=True)
     away_score = models.PositiveIntegerField(null=True, blank=True)
@@ -59,6 +67,7 @@ class Match(models.Model):
     home_win_odds = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     draw_odds = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     away_win_odds = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    last_odds_update = models.DateTimeField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -66,6 +75,9 @@ class Match(models.Model):
     is_active = models.BooleanField(default=True)
     is_popular = models.BooleanField(default=False)
     is_bet_available = models.BooleanField(default=False)
+
+    source_id = models.CharField(max_length=50, null=True, blank=True)
+    source_url = models.CharField(max_length=255, null=True, blank=True, unique=True)
 
     class Meta:
         ordering = ["-start_time"]
@@ -88,6 +100,10 @@ class Match(models.Model):
     @property
     def can_bet(self):
         return self.is_active and self.is_bet_available and self.status == "scheduled" and self.start_time > timezone.now()
+
+    @property
+    def data_source(self):
+        return self.league.data_source
 
 
 class BetSlip(models.Model):
