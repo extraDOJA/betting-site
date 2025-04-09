@@ -42,6 +42,14 @@ class SportsAdapter {
   async validateBetsAvailability(betSlipData) {
     return this.client.post(SPORTS_URLS.VALIDATE_BETS, betSlipData);
   }
+
+  async getLeagueDetails(leagueSlug) {
+    return this.client.get(`${SPORTS_URLS.LEAGUES}${leagueSlug}/`);
+  }
+
+  async getLeagueMatches(leagueSlug) {
+    return this.client.get(`${SPORTS_URLS.LEAGUES}${leagueSlug}/matches/`);
+  }
 }
 
 export const sportsAdapter = new SportsAdapter();

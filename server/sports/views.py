@@ -9,6 +9,7 @@ from .models import BetSlip, Match, Sport, League
 from .serializers import (
     BetSlipCreateSerializer,
     BetSlipResponseSerializer,
+    LeagueDetailSerializer,
     LeagueSerializer,
     MatchSerializer,
     SportWithLeaguesSerializer,
@@ -155,3 +156,38 @@ def validate_bets_availability(request):
             )
 
     return Response(response_data, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+def league_details(request, league_slug):
+    """
+    Get details of a specific league
+    """
+    try:
+        league = League.objects.get(slug=league_slug, is_active=True)
+    except League.DoesNotExist:
+        return Response({"error": "League not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = LeagueDetailSerializer(league)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+def league_matches(request, league_slug):
+    """
+    Get matches for a specific league
+    """
+    now = timezone.now()
+    try:
+        league = League.objects.get(slug=league_slug, is_active=True)
+    except League.DoesNotExist:
+        return Response({"error": "League not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    matches = (
+        Match.objects.filter(league=league, is_active=True, is_bet_available=True)
+        .filter(Q(status="live") | Q(status="scheduled", start_time__gte=now))
+        .order_by("-status", "start_time")
+    )
+
+    serializer = MatchSerializer(matches, many=True)
+    return Response(serializer.data)
