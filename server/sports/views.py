@@ -15,7 +15,16 @@ from .serializers import (
     SportWithLeaguesSerializer,
     UserBetSlipSerializer,
 )
-from .swagger_docs import popular_leagues_schema, sports_with_leagues_schema, list_matches_schema, bet_slip_create_schema, user_bet_slips_schema
+from .swagger_docs import (
+    popular_leagues_schema, 
+    sports_with_leagues_schema, 
+    list_matches_schema, 
+    bet_slip_create_schema, 
+    user_bet_slips_schema,
+    validate_bets_schema,
+    league_details_schema,
+    league_matches_schema
+)
 
 
 @popular_leagues_schema
@@ -127,6 +136,7 @@ def user_bet_slips(request):
     return Response(serializer.data)
 
 
+@validate_bets_schema
 @api_view(["POST"])
 def validate_bets_availability(request):
     """
@@ -158,6 +168,7 @@ def validate_bets_availability(request):
     return Response(response_data, status=status.HTTP_200_OK)
 
 
+@league_details_schema
 @api_view(["GET"])
 def league_details(request, league_slug):
     """
@@ -172,6 +183,7 @@ def league_details(request, league_slug):
     return Response(serializer.data)
 
 
+@league_matches_schema
 @api_view(["GET"])
 def league_matches(request, league_slug):
     """
