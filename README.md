@@ -80,8 +80,47 @@ A comprehensive sports betting application built with Django REST Framework and 
    cd server
    pip install -r requirements.txt
    python manage.py migrate
+   python manage.py add_initial_data # Optional
    python manage.py runserver
    ```
+
+
+### League and Match Setup
+
+1. Add a new league through Django admin panel
+   ```
+   # First, create a superuser if you haven't already
+   python manage.py createsuperuser
+   
+   # Access Django admin at http://localhost:8000/admin/
+   # Navigate to Sports > Leagues > Add League
+   ```
+
+2. Configure league data source
+   - Set league name and associate with a sport
+   - Set data source to "flashscore" 
+   - Add source URL from Flashscore (e.g., "https://www.flashscore.com/football/england/premier-league/fixtures/")
+   - Mark as active and save
+
+3. Import matches using management command
+   ```
+   # Import matches for all active leagues
+   python manage.py import_matches
+   
+   # Import matches for a specific league (replace LEAGUE_ID with actual ID)
+   python manage.py import_matches --league_id=LEAGUE_ID
+   
+   # Run import asynchronously using Celery (requires Celery setup)
+   python manage.py import_matches --async
+
+   # Run import odds
+   python manage.py import_upcoming_odds
+   ```
+
+4. Schedule regular updates (optional)
+   - Set up a cron job or use Celery beat to run import_matches periodically
+   - Configure Celery for asynchronous processing in production
+
 
 ### Frontend Setup
 1. Install dependencies and start development server
