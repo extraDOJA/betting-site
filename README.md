@@ -1,6 +1,6 @@
 # Bet Site
 
-A sports betting application built with Django REST Framework and React.
+A comprehensive sports betting application built with Django REST Framework and React.
 
 # Project Status
 
@@ -34,6 +34,19 @@ A sports betting application built with Django REST Framework and React.
 - [x] Winnings calculation
 - [x] Persistent bet selections with auto-validation on page refresh
 
+### League and Matches System
+- [x] Browse leagues
+- [x] View league details
+- [x] View upcoming and past matches
+- [x] Match status tracking
+
+### UI/UX Features
+- [x] Responsive design using Tailwind CSS
+- [x] Toast notifications for user feedback
+- [x] Dynamic forms with validation
+- [x] Error handling
+- [x] Card-based match display
+
 ## System Requirements
 
 - Python 3.12+
@@ -42,59 +55,43 @@ A sports betting application built with Django REST Framework and React.
 
 ## Installation and Setup
 
-### Backend (Django)
+### Backend Setup
+1. Clone the repository
+   ```
+   git clone https://github.com/yourusername/bettting-site.git
+   cd bettting-site
+   ```
 
-1. Navigate to the `server` directory:
-```bash
-cd server
-```
+2. Set up environment variables
+   ```
+   cd server
+   cp .env.example .env
+   # Update SECRET_KEY
+   ```
 
-2. Create and activate virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate
-```
+3. Set up Python virtual environment
+   ```
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+4. Install dependencies and set up database
+   ```
+   cd server
+   pip install -r requirements.txt
+   python manage.py migrate
+   python manage.py runserver
+   ```
 
-4. Create `.env` file in the `server` directory and add your secret key:
-```plaintext
-SECRET_KEY=your-secret-key-here
-```
+### Frontend Setup
+1. Install dependencies and start development server
+   ```
+   cd client
+   npm install
+   npm run dev
+   ```
 
-5. Run database migrations:
-```bash
-python manage.py migrate
-```
-
-6. Start development server:
-```bash
-python manage.py runserver
-```
-
-Server will be available at: http://localhost:8000
-
-### Frontend (React)
-
-1. In a new terminal, navigate to the `client` directory:
-```bash
-cd client
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Start the application:
-```bash
-npm run dev
-```
-
-Application will be available at: http://localhost:5173
+2. Access the application at http://localhost:5173
 
 ## API Documentation
 
@@ -108,9 +105,14 @@ Application will be available at: http://localhost:5173
   - `sports/` - Sports betting management
 - `client/` - React Frontend
   - `src/components/` - React components
+    - `atoms/` - Basic UI components
+    - `molecules/` - Composite components
+    - `organisms/` - Complex components combining molecules
+    - `ui/` - Reusable UI components (shadcn/ui)
   - `src/pages/` - Application pages
   - `src/services/` - API integration
   - `src/context/` - React contexts for state management
+  - `src/hooks/` - Custom React hooks
 
 ## Technologies
 
@@ -126,3 +128,5 @@ Application will be available at: http://localhost:5173
 - Axios
 - Tailwind CSS
 - shadcn/ui
+- React Hook Form
+- Radix UI primitives
