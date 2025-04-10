@@ -2,6 +2,7 @@ from __future__ import absolute_import, unicode_literals
 import os
 from celery import Celery
 from celery.schedules import crontab
+from datetime import timedelta
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'server.settings')
 
@@ -20,7 +21,7 @@ app.conf.beat_schedule = {
     },
     'import-upcoming-matches-odds': {
         'task': 'sports.tasks.import_upcoming_matches_odds',
-        'schedule': 3600.0,  # Run every hour
+        'schedule': timedelta(hours=1),  # Run every hour
     },
 }
 
