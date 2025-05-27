@@ -1,5 +1,5 @@
 from django.utils import timezone
-from django.db.models import Q
+from django.db.models import Q, Exists, OuterRef, Prefetch
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -33,7 +33,17 @@ def popular_leagues(request):
     """
     Get list of popular leagues
     """
-    leagues = League.objects.filter(is_popular=True, is_active=True)
+    now = timezone.now()
+    upcoming_matches = Match.objects.filter(
+        league=OuterRef('pk'),
+        is_active=True,
+        is_bet_available=True
+    ).filter(
+        Q(status="live") | Q(status="scheduled", start_time__gte=now)
+    )
+    leagues = League.objects.filter(is_popular=True, is_active=True).annotate(
+        has_upcoming=Exists(upcoming_matches)
+    ).filter(has_upcoming=True)
     serializer = LeagueSerializer(leagues, many=True)
     return Response(serializer.data)
 
@@ -44,7 +54,21 @@ def sports_with_leagues(request):
     """
     Get list of sports with leagues
     """
-    sports = Sport.objects.filter(is_active=True).prefetch_related("leagues").filter(leagues__is_active=True).distinct().order_by("id")
+    now = timezone.now()
+    upcoming_matches = Match.objects.filter(
+        league=OuterRef('pk'),
+        is_active=True,
+        is_bet_available=True
+    ).filter(
+        Q(status="live") | Q(status="scheduled", start_time__gte=now)
+    )
+    leagues_with_matches = League.objects.filter(is_active=True).annotate(
+        has_upcoming=Exists(upcoming_matches)
+    ).filter(has_upcoming=True)
+
+    sports = Sport.objects.filter(is_active=True, leagues__in=leagues_with_matches).distinct().order_by("id").prefetch_related(
+        Prefetch('leagues', queryset=leagues_with_matches)
+    )
     serializer = SportWithLeaguesSerializer(sports, many=True)
     return Response(serializer.data)
 
