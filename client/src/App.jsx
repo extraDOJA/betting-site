@@ -7,6 +7,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import BalancePage from "./pages/BalancePage";
 import BetsPage from "./pages/BetsPage";
 import LeaguePage from "./pages/LeaguePage";
+import AdminPage from "./pages/AdminPage";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route element={<ProtectedRoute />}>
+          <Route path="/admin/*" element={<AdminPage />} />
           <Route path="/balance" element={<BalancePage />} />
           <Route path="/user/bets" element={<BetsPage />} />
         </Route>
