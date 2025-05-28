@@ -3,7 +3,7 @@ import axios from "axios";
 export const addRequestInterceptor = (axiosInstance, accessToken) => {
   return axiosInstance.interceptors.request.use(
     (config) => {
-      if (accessToken) {
+      if (accessToken && config.url !== "/accounts/api/token/refresh/") {
         config.headers.Authorization = `Bearer ${accessToken}`;
       }
       config.withCredentials = true;
@@ -25,8 +25,8 @@ export const addResponseInterceptor = (axiosInstance, tokenCallback) => {
       if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== refreshUrl) {
         originalRequest._retry = true;
         try {
-          const refreshResponse = await axiosInstance.get(refreshUrl, { 
-            withCredentials: true 
+          const refreshResponse = await axios.get(refreshUrl, {
+            withCredentials: true,
           });
           const newToken = refreshResponse.data.accessToken;
           tokenCallback(newToken);
