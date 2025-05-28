@@ -3,14 +3,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Link } from "react-router";
 
 const navLinks = [
-  // {
-  //   title: "Profile",
-  //   url: "#",
-  // },
   {
     title: "Bets",
     url: "/user/bets",
-  }
+  },
 ];
 
 const UserNavigationMenu = ({ user }) => {
@@ -27,6 +23,11 @@ const UserNavigationMenu = ({ user }) => {
             <DropdownMenuItem className="cursor-pointer">{link.title}</DropdownMenuItem>
           </Link>
         ))}
+        {user?.is_superuser && (
+          <Link to="/admin" className="capitalize">
+            <DropdownMenuItem className="cursor-pointer">Admin</DropdownMenuItem>
+          </Link>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
