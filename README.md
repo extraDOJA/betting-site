@@ -121,6 +121,70 @@ A comprehensive sports betting application built with Django REST Framework and 
    - Set up a cron job or use Celery beat to run import_matches periodically
    - Configure Celery for asynchronous processing in production
 
+### Celery & Automatic Import of Matches and Odds
+
+### Requirements
+- Redis (as a broker for Celery)
+
+1. Install Redis (macOS)
+```sh
+brew install redis
+brew services start redis
+```
+
+2. Install Redis (Linux)
+```sh
+sudo apt install redis-server
+sudo systemctl start redis
+```
+
+3. Check if Redis is running
+```sh
+redis-cli ping
+# Should return: PONG
+```
+
+4. Running Celery
+
+In one terminal, start the worker:
+```sh
+celery -A server worker -l info
+```
+
+In another terminal, start the beat scheduler:
+```sh
+celery -A server beat -l info
+```
+
+5. Automatic Task Schedule
+
+- **Import matches:** daily at midnight (00:00)
+- **Import odds:** every 1 hour (you can change this in `server/server/celery.py`)
+
+The configuration is in [`server/server/celery.py`](server/server/celery.py):
+
+```python
+app.conf.beat_schedule = {
+    'import-matches-daily': {
+        'task': 'sports.tasks.import_all_league_matches',
+        'schedule': crontab(hour=0, minute=0),
+        'kwargs': {'scheduled': True},
+    },
+    'import-upcoming-matches-odds': {
+        'task': 'sports.tasks.import_upcoming_matches_odds',
+        'schedule': timedelta(hours=1),
+    },
+}
+```
+
+6. Manual Import
+
+You can also run the import manually using a management command or from the Django shell.
+
+---
+
+**Note:**  
+Celery worker and beat must be running for automatic import to work!
 
 ### Frontend Setup
 1. Install dependencies and start development server
