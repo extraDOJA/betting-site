@@ -8,6 +8,7 @@ import BalancePage from "./pages/BalancePage";
 import BetsPage from "./pages/BetsPage";
 import LeaguePage from "./pages/LeaguePage";
 import AdminPage from "./pages/AdminPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
   return (
@@ -22,7 +23,7 @@ function App() {
           <Route path="/balance" element={<BalancePage />} />
           <Route path="/user/bets" element={<BetsPage />} />
         </Route>
-        <Route path="*" element={<div>Not Found</div>} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Toaster />
     </BrowserRouter>
