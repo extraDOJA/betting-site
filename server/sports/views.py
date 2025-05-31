@@ -227,3 +227,17 @@ def league_matches(request, league_slug):
 
     serializer = MatchSerializer(matches, many=True)
     return Response(serializer.data)
+
+
+@api_view(["GET"])
+def single_match(request, match_id):
+    """
+    Get details of a single match
+    """
+    try:
+        match = Match.objects.get(id=match_id, is_active=True)
+    except Match.DoesNotExist:
+        return Response({"error": "Match not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = MatchSerializer(match)
+    return Response(serializer.data)
