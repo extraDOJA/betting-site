@@ -5,6 +5,7 @@ import { ApiClient } from "../core/apiClient";
 const SPORTS_URLS = {
   POPULAR_LEAGUES: "/leagues/popular/",
   LEAGUES: "/leagues/",
+  MATCHES: "/matches",
   POPULAR_MATCHES: "/matches/popular/",
   BET: "/bet/",
   BETS: "/bets/",
@@ -49,6 +50,10 @@ class SportsAdapter {
 
   async getLeagueMatches(leagueSlug) {
     return this.client.get(`${SPORTS_URLS.LEAGUES}${leagueSlug}/matches/`);
+  }
+
+  async getMatchDetails(matchId) {
+    return this.client.get(`${SPORTS_URLS.MATCHES}/${matchId}`);
   }
 }
 
