@@ -9,6 +9,7 @@ import BetsPage from "./pages/BetsPage";
 import LeaguePage from "./pages/LeaguePage";
 import AdminPage from "./pages/AdminPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import MatchPage from "./pages/MatchPage";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/league/:leagueSlug" element={<LeaguePage />} />
+        <Route path="/match/:matchId" element={<MatchPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route element={<ProtectedRoute />}>
