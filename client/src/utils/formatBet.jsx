@@ -1,8 +1,8 @@
-export const formatBet = (betType, matchDetails) => ({
-  betType,
+export const formatBet = (betOption, matchDetails) => ({
+  betOptionId: betOption.id,
   homeTeam: matchDetails.home_team,
   awayTeam: matchDetails.away_team,
-  odds: betType === "home" ? matchDetails.home_win_odds : betType === "away" ? matchDetails.away_win_odds : matchDetails.draw_odds,
+  odds: betOption.odds,
 });
 
 export const formatBetDate = (dateString) => {
@@ -22,20 +22,19 @@ export const formatBetDate = (dateString) => {
   }).format(date);
 };
 
-
 export const getBadgeStyles = (status) => {
   switch (status) {
-    case 'won':
-      return { variant: 'default', className: 'bg-green-500 hover:bg-green-600' };
-    case 'lost':
-      return { variant: 'destructive' };
-    case 'pending':
-      return { variant: 'secondary' };
-    case 'active':
-      return { variant: 'secondary' };
-    case 'canceled':
-      return { variant: 'outline' };
+    case "won":
+      return { variant: "default", className: "bg-green-500 hover:bg-green-600" };
+    case "lost":
+      return { variant: "destructive" };
+    case "pending":
+      return { variant: "secondary" };
+    case "active":
+      return { variant: "secondary" };
+    case "canceled":
+      return { variant: "outline" };
     default:
-      return { variant: 'secondary' };
+      return { variant: "secondary" };
   }
 };
