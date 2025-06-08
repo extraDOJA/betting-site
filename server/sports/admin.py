@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from sports.models import Bet, BetSlip, League, Match, Sport
+from sports.models import Bet, BetOption, BetSlip, BetType, League, Match, Sport
 
 
 class MatchAdmin(admin.ModelAdmin):
@@ -13,3 +13,5 @@ admin.site.register(League)
 admin.site.register(Match, MatchAdmin)
 admin.site.register(BetSlip)
 admin.site.register(Bet)
+admin.site.register(BetType)
+admin.site.register(BetOption)
