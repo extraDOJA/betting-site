@@ -31,7 +31,7 @@ const RightPanel = () => {
         total_amount: parseFloat(stake),
         bets: Object.entries(selectedBets).map(([matchId, bet]) => ({
           match: parseInt(matchId),
-          bet_choice: bet.betType,
+          bet_option: bet.betOptionId,
           odds: parseFloat(bet.odds),
         })),
       };
