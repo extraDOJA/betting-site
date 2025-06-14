@@ -18,21 +18,17 @@ const SportEvent = ({ match }) => {
           <span className="font-bold">{match.away_team}</span>
         </Link>
         <div className="flex gap-2">
-          <BetButton
-            title={match.home_team}
-            odds={match.home_win_odds}
-            isSelected={selectedBet === "home"}
-            onClick={() => toggleBet(match.id, "home", match)}
-          />
-
-          <BetButton title="Draw" odds={match.draw_odds} isSelected={selectedBet === "draw"} onClick={() => toggleBet(match.id, "draw", match)} />
-
-          <BetButton
-            title={match.away_team}
-            odds={match.away_win_odds}
-            isSelected={selectedBet === "away"}
-            onClick={() => toggleBet(match.id, "away", match)}
-          />
+          {match.bet_options
+            ?.filter((opt) => opt.bet_type === "1X2")
+            .map((opt) => (
+              <BetButton
+                key={opt.value}
+                title={opt.value === "home" ? match.home_team : opt.value === "away" ? match.away_team : "Draw"}
+                odds={opt.odds}
+                isSelected={selectedBet?.betOptionId === opt.id}
+                onClick={() => toggleBet(match.id, opt, match)}
+              />
+            ))}
         </div>
       </div>
     </div>

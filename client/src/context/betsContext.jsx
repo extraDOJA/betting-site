@@ -58,16 +58,17 @@ export const BetsProvider = ({ children }) => {
     });
   };
 
-  const toggleBet = (matchId, betType, matchDetails) => {
+  const toggleBet = (matchId, betOption, matchDetails) => {
     setSelectedBets((prev) => {
-      if (prev[matchId] && prev[matchId].betType === betType) {
+      // betOption: {id, value, odds,betType}
+      if (prev[matchId] && prev[matchId].betOptionId === betOption.id) {
         const { [matchId]: _, ...rest } = prev;
         return rest;
       }
 
       return {
         ...prev,
-        [matchId]: formatBet(betType, matchDetails),
+        [matchId]: formatBet(betOption, matchDetails),
       };
     });
   };

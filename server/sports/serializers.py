@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Bet, BetSlip, Match, Sport, League
+from .models import Bet, BetOption, BetSlip, Match, Sport, League
 
 
 class LeagueSerializer(serializers.ModelSerializer):
@@ -27,9 +27,18 @@ class SportWithLeaguesSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "slug", "leagues"]
 
 
+class BetOptionSerializer(serializers.ModelSerializer):
+    bet_type = serializers.CharField(source="bet_type.code", read_only=True)
+
+    class Meta:
+        model = BetOption
+        fields = ["id", "bet_type", "value", "odds"]
+
+
 class MatchSerializer(serializers.ModelSerializer):
     league_name = serializers.CharField(source="league.name", read_only=True)
     sport_name = serializers.CharField(source="league.sport.name", read_only=True)
+    bet_options = BetOptionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Match
@@ -48,13 +57,14 @@ class MatchSerializer(serializers.ModelSerializer):
             "draw_odds",
             "away_win_odds",
             "is_bet_available",
+            "bet_options",
         ]
 
 
 class BetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bet
-        fields = ["match", "bet_choice", "odds"]
+        fields = ["match", "bet_option", "odds"]
 
 
 class BetSlipCreateSerializer(serializers.ModelSerializer):
@@ -95,13 +105,11 @@ class BetSlipCreateSerializer(serializers.ModelSerializer):
             total_odds *= bet_data["odds"]
 
         # Create bet slip
-        bet_slip = BetSlip.objects.create(
-            user=self.context["request"].user, total_amount=total_amount, total_odds=total_odds, potential_win=total_amount * total_odds
-        )
+        bet_slip = BetSlip.objects.create(user=self.context["request"].user, total_amount=total_amount, total_odds=total_odds, potential_win=total_amount * total_odds)
 
         # Create bets
         for bet_data in bets_data:
-            Bet.objects.create(bet_slip=bet_slip, match=bet_data["match"], bet_choice=bet_data["bet_choice"], odds=bet_data["odds"])
+            Bet.objects.create(bet_slip=bet_slip, match=bet_data["match"], bet_option=bet_data["bet_option"], odds=bet_data["odds"])
 
         return bet_slip
 
@@ -135,7 +143,12 @@ class UserBetSlipSerializer(serializers.ModelSerializer):
                 "home_score": bet.match.home_score,
                 "away_score": bet.match.away_score,
                 "start_time": bet.match.start_time,
-                "bet_choice": bet.bet_choice,
+                "bet_option": {
+                    "id": bet.bet_option.id if bet.bet_option else None,
+                    "bet_type": bet.bet_option.bet_type.code if bet.bet_option else None,
+                    "value": bet.bet_option.value if bet.bet_option else None,
+                    "odds": bet.bet_option.odds if bet.bet_option else None,
+                } if bet.bet_option else None,
                 "odds": bet.odds,
             }
             matches.append(match_data)
