@@ -1,4 +1,5 @@
 import datetime
+from typing import Literal
 from bs4 import BeautifulSoup
 
 from sports.services.praser import Parser
@@ -9,7 +10,7 @@ class FlashscoreParser(Parser):
     Parser for Flashscore HTML content.
     """
 
-    def parse_fixtures_page(self, html):
+    def parse_fixtures_page(self, html) -> list[dict]:
         """
         Parse a Flashscore fixtures page with multiple matches.
         """
@@ -20,8 +21,11 @@ class FlashscoreParser(Parser):
 
         for row in match_rows:
             try:
-                match_id = row.get("id", "").replace("g_1_", "")
-                match_link = row.select_one(".eventRowLink").get("href", "")
+                match_id_raw = row.get("id", "")
+                match_id = str(match_id_raw).replace("g_1_", "") if match_id_raw else ""
+
+                event_link_tag = row.select_one(".eventRowLink")
+                match_link = event_link_tag.get("href", "") if event_link_tag else ""
 
                 if not match_id:
                     continue
@@ -56,7 +60,7 @@ class FlashscoreParser(Parser):
 
         return matches
 
-    def parse_match_page(self, html):
+    def parse_match_page(self, html) -> dict:
         """
         Parse a single match page from Flashscore.
         """
@@ -115,7 +119,7 @@ class FlashscoreParser(Parser):
 
         return match_data
 
-    def parse_datetime(self, time_str):
+    def parse_datetime(self, time_str: str) -> datetime.datetime:
         """
         Parse date and time strings into a datetime object.
         """
@@ -133,7 +137,7 @@ class FlashscoreParser(Parser):
             print(f"Error parsing datetime: {e}, time: '{time_str}'")
             return datetime.datetime.now()
 
-    def _parse_date(self, date_str):
+    def _parse_date(self, date_str) -> datetime._Date:
         """
         Parse date string into a date object.
         """
@@ -153,7 +157,7 @@ class FlashscoreParser(Parser):
 
         return datetime.date(year, month, day)
 
-    def _parse_time(self, time_str):
+    def _parse_time(self, time_str) -> datetime.time:
         """
         Parse time string into a time object.
         """
@@ -164,7 +168,7 @@ class FlashscoreParser(Parser):
 
         return datetime.time(hour, minute)
 
-    def _is_match_finished(self, status_container):
+    def _is_match_finished(self, status_container) -> bool:
         """
         Check if the match is finished, considering both Polish and English languages.
         """
@@ -183,7 +187,7 @@ class FlashscoreParser(Parser):
 
         return False
 
-    def _parse_score(self, score_str):
+    def _parse_score(self, score_str) -> tuple[int, int] | tuple[Literal[0], Literal[0]]:
         """
         Parse the score string into a tuple of integers.
         """

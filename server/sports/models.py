@@ -150,7 +150,7 @@ class BetSlip(models.Model):
         ]
 
     def __str__(self):
-        return f"Slip #{self.id} - {self.user.username}"
+        return f"Slip #{str(self.id)} - {self.user.username}" # type: ignore
 
 
 class Bet(models.Model):

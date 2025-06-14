@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Any
 
 class Parser(ABC):
     """
@@ -6,21 +7,21 @@ class Parser(ABC):
     """
 
     @abstractmethod
-    def parse_fixtures_page(self, html):
+    def parse_fixtures_page(self, html) -> Any:
         """
         Parse a fixtures/results page with multiple matches.
         """
         pass
 
     @abstractmethod
-    def parse_match_page(self, html):
+    def parse_match_page(self, html) -> Any:
         """
         Parse a single match page.
         """
         pass
 
     @abstractmethod
-    def parse_datetime(self, date_str, time_str):
+    def parse_datetime(self, time_str) -> Any:
         """
         Parse date and time strings into a datetime object.
         """
@@ -33,7 +34,7 @@ class ParserFactory:
     """
 
     @staticmethod
-    def create_parser(parser_type):
+    def create_parser(parser_type) -> Parser:
         if parser_type == "flashscore":
             from sports.services.flashscore.flashscore_parser import FlashscoreParser
             return FlashscoreParser()
