@@ -10,7 +10,7 @@ class Sport(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     class Meta:
@@ -18,9 +18,7 @@ class Sport(models.Model):
 
 
 class League(models.Model):
-    SOURCE_CHOICES = (
-        ("flashscore", "Flashscore"),
-    )
+    SOURCE_CHOICES = (("flashscore", "Flashscore"),)
 
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
@@ -29,15 +27,15 @@ class League(models.Model):
     is_active = models.BooleanField(default=True)
     is_popular = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     data_source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default="flashscore")
     source_url = models.CharField(max_length=255, null=True, blank=True, unique=True)
 
     @property
-    def url_path(self):
+    def url_path(self) -> str:
         return f"/league/{self.slug}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name} ({self.sport.name})"
 
     class Meta:
@@ -86,24 +84,25 @@ class Match(models.Model):
             models.Index(fields=["league", "status"]),
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.home_team} vs {self.away_team} ({self.league.name})"
 
     @property
-    def is_finished(self):
+    def is_finished(self) -> bool:
         return self.status == "finished"
 
     @property
-    def is_live(self):
+    def is_live(self) -> bool:
         return self.status == "live"
 
     @property
-    def can_bet(self):
+    def can_bet(self) -> bool:
         return self.is_active and self.is_bet_available and self.status == "scheduled" and self.start_time > timezone.now()
 
     @property
-    def data_source(self):
+    def data_source(self) -> str:
         return self.league.data_source
+
 
 class BetType(models.Model):
     name = models.CharField(max_length=100)
@@ -113,16 +112,17 @@ class BetType(models.Model):
     class Meta:
         ordering = ["name"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name} ({self.code})"
-    
+
+
 class BetOption(models.Model):
     match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name="bet_options")
     bet_type = models.ForeignKey(BetType, on_delete=models.CASCADE, related_name="bet_options")
     value = models.CharField(max_length=50)
     odds = models.DecimalField(max_digits=5, decimal_places=2)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.match} - {self.bet_type.name}: {self.value} @ {self.odds}"
 
 
@@ -149,8 +149,8 @@ class BetSlip(models.Model):
             models.Index(fields=["user", "status"]),
         ]
 
-    def __str__(self):
-        return f"Slip #{str(self.id)} - {self.user.username}" # type: ignore
+    def __str__(self) -> str:
+        return f"Slip #{str(self.id)} - {self.user.username}"  # type: ignore
 
 
 class Bet(models.Model):
@@ -175,9 +175,18 @@ class Bet(models.Model):
             models.Index(fields=["match", "status"]),
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.match} ({self.bet_slip})"
 
     @property
-    def is_settled(self):
+    def is_settled(self) -> bool:
         return self.status in ["won", "lost", "canceled"]
+
+    def settle_bet(self) -> None:
+        if not self.is_settled:
+            from sports.services.settlement import SettlementFactory
+            settler = SettlementFactory.create_settlement(self.match.league.sport.name)
+            if settler:
+                settler.settle_bet(self)
+        else:
+            raise ValueError(f"No settlement strategy found for sport: {self.match.league.sport.name}")
