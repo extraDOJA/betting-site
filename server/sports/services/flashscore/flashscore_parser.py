@@ -1,5 +1,5 @@
 import datetime
-from typing import Literal
+from typing import Any, Literal
 from bs4 import BeautifulSoup
 
 from sports.services.praser import Parser
@@ -137,7 +137,7 @@ class FlashscoreParser(Parser):
             print(f"Error parsing datetime: {e}, time: '{time_str}'")
             return datetime.datetime.now()
 
-    def _parse_date(self, date_str) -> datetime._Date:
+    def _parse_date(self, date_str) -> Any:
         """
         Parse date string into a date object.
         """
