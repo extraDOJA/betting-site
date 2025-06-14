@@ -151,6 +151,24 @@ class BetSlip(models.Model):
 
     def __str__(self) -> str:
         return f"Slip #{str(self.id)} - {self.user.username}"  # type: ignore
+    
+    def settle_slip(self) -> None:
+        """
+        Settle all bets in the slip.
+        """
+        bets = self.bets.all() # type: ignore
+        if not all(bet.is_settled for bet in bets):
+            return
+        
+        if any(bet.status == "lost" for bet in bets):
+            self.status = "lost"
+        elif all(bet.status == "won" for bet in bets):
+            self.status = "won"
+            self.user.balance += self.potential_win # type: ignore
+            self.user.save(update_fields=["balance"])
+        else:
+            self.status = "canceled"
+        self.save(update_fields=["status"])
 
 
 class Bet(models.Model):
@@ -188,5 +206,7 @@ class Bet(models.Model):
             settler = SettlementFactory.create_settlement(self.match.league.sport.name)
             if settler:
                 settler.settle_bet(self)
+
+            self.bet_slip.settle_slip()
         else:
             raise ValueError(f"No settlement strategy found for sport: {self.match.league.sport.name}")
