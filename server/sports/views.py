@@ -1,11 +1,15 @@
-from django.utils import timezone
-from django.db.models import Q, Exists, OuterRef, Prefetch
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
-from .models import BetSlip, Match, Sport, League
+
+from sports.repositories.BetSlipRepository import BetSlipRepository, InsufficientBalanceError, MatchNotAvailableError
+from sports.repositories.LeagueRepository import LeagueRepository
+from sports.repositories.MatchRepository import MatchRepository
+from sports.repositories.SportRepository import SportRepository
+
+from .models import Match, League
 from .serializers import (
     BetSlipCreateSerializer,
     BetSlipResponseSerializer,
@@ -16,76 +20,52 @@ from .serializers import (
     UserBetSlipSerializer,
 )
 from .swagger_docs import (
-    popular_leagues_schema, 
-    sports_with_leagues_schema, 
-    list_matches_schema, 
-    bet_slip_create_schema, 
+    popular_leagues_schema,
+    sports_with_leagues_schema,
+    list_matches_schema,
+    bet_slip_create_schema,
     user_bet_slips_schema,
     validate_bets_schema,
     league_details_schema,
-    league_matches_schema
+    league_matches_schema,
 )
 
 
 @popular_leagues_schema
 @api_view(["GET"])
-def popular_leagues(request):
+def popular_leagues(request) -> Response:
     """
     Get list of popular leagues
     """
-    now = timezone.now()
-    upcoming_matches = Match.objects.filter(
-        league=OuterRef('pk'),
-        is_active=True,
-        is_bet_available=True
-    ).filter(
-        Q(status="live") | Q(status="scheduled", start_time__gte=now)
-    )
-    leagues = League.objects.filter(is_popular=True, is_active=True).annotate(
-        has_upcoming=Exists(upcoming_matches)
-    ).filter(has_upcoming=True)
+    upcoming_matches = MatchRepository.get_upcoming_matches()
+    leagues = LeagueRepository.get_popular_leagues(upcoming_matches)
+
     serializer = LeagueSerializer(leagues, many=True)
     return Response(serializer.data)
 
 
 @sports_with_leagues_schema
 @api_view(["GET"])
-def sports_with_leagues(request):
+def sports_with_leagues(request) -> Response:
     """
     Get list of sports with leagues
     """
-    now = timezone.now()
-    upcoming_matches = Match.objects.filter(
-        league=OuterRef('pk'),
-        is_active=True,
-        is_bet_available=True
-    ).filter(
-        Q(status="live") | Q(status="scheduled", start_time__gte=now)
-    )
-    leagues_with_matches = League.objects.filter(is_active=True).annotate(
-        has_upcoming=Exists(upcoming_matches)
-    ).filter(has_upcoming=True)
+    upcoming_matches = MatchRepository.get_upcoming_matches()
+    leagues_with_matches = LeagueRepository.get_leagues(upcoming_matches)
+    sports = SportRepository.get_sports(leagues_with_matches)
 
-    sports = Sport.objects.filter(is_active=True, leagues__in=leagues_with_matches).distinct().order_by("id").prefetch_related(
-        Prefetch('leagues', queryset=leagues_with_matches)
-    )
     serializer = SportWithLeaguesSerializer(sports, many=True)
     return Response(serializer.data)
 
 
 @list_matches_schema
 @api_view(["GET"])
-def list_popular_matches(request):
+def list_popular_matches(request) -> Response:
     """
     Get list of upcoming popular matches
     """
-    now = timezone.now()
+    matches = MatchRepository.get_popular_matches()
 
-    matches = (
-        Match.objects.filter(is_active=True, is_popular=True)
-        .filter(Q(status="live") | Q(status="scheduled", start_time__gte=now))
-        .order_by("-status", "start_time")[:15]
-    )
     serializer = MatchSerializer(matches, many=True)
     return Response(serializer.data)
 
@@ -93,31 +73,27 @@ def list_popular_matches(request):
 @bet_slip_create_schema
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def create_bet_slip(request):
+def create_bet_slip(request) -> Response:
     """
     Create a bet slip
     """
     serializer = BetSlipCreateSerializer(data=request.data, context={"request": request})
 
-    if serializer.is_valid():
-        if request.user.balance < serializer.validated_data["total_amount"]:
-            return Response({"error": "Insufficient balance"}, status=status.HTTP_400_BAD_REQUEST)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        for bet_data in serializer.validated_data["bets"]:
-            match = bet_data["match"]
-            if not match.can_bet:
-                return Response({"error": f"Match {match} is not available for betting"}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        bet_slip, user_balance = BetSlipRepository.create_bet_slip(user=request.user, validated_data=serializer.validated_data)
+    except InsufficientBalanceError:
+        return Response({"error": "Insufficient balance"}, status=status.HTTP_400_BAD_REQUEST)
+    except MatchNotAvailableError as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        request.user.substrat_balance(serializer.validated_data["total_amount"])
-        bet_slip = serializer.save(user=request.user)
+    response_serializer = BetSlipResponseSerializer(bet_slip)
+    response_data = response_serializer.data
+    response_data["user_balance"] = user_balance
 
-        response_serializer = BetSlipResponseSerializer(bet_slip)
-        response_data = response_serializer.data
-        response_data["user_balance"] = request.user.balance
-
-        return Response(response_data, status=status.HTTP_201_CREATED)
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(response_data, status=status.HTTP_201_CREATED)
 
 
 class BetPagination(PageNumberPagination):
@@ -129,25 +105,12 @@ class BetPagination(PageNumberPagination):
 @user_bet_slips_schema
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def user_bet_slips(request):
+def user_bet_slips(request) -> Response:
     """
     Get user's bet slips with optional filtering by status
     """
     status_filter = request.query_params.get("status")
-    user_bet_slips = BetSlip.objects.filter(user=request.user)
-
-    if status_filter:
-        if status_filter == "open":
-            # Open bets: pending or active
-            user_bet_slips = user_bet_slips.filter(status__in=["pending", "active"])
-        elif status_filter == "finished":
-            # Finished bets: lost or canceled
-            user_bet_slips = user_bet_slips.filter(status__in=["lost", "canceled"])
-        elif status_filter == "won":
-            # Won bets
-            user_bet_slips = user_bet_slips.filter(status="won")
-        else:
-            pass
+    user_bet_slips = BetSlipRepository.get_user_bet_slips(request.user, status_filter)
 
     paginator = BetPagination()
     page = paginator.paginate_queryset(user_bet_slips, request)
@@ -162,7 +125,7 @@ def user_bet_slips(request):
 
 @validate_bets_schema
 @api_view(["POST"])
-def validate_bets_availability(request):
+def validate_bets_availability(request) -> Response:
     """
     Validate if bets are available
     """
@@ -172,7 +135,7 @@ def validate_bets_availability(request):
     if not match_ids:
         return Response([], status=status.HTTP_200_OK)
 
-    matches = Match.objects.filter(id__in=match_ids)
+    matches = MatchRepository.get_matches_by_ids(match_ids)
 
     # Return only matches that are available for betting
     response_data = []
@@ -194,12 +157,12 @@ def validate_bets_availability(request):
 
 @league_details_schema
 @api_view(["GET"])
-def league_details(request, league_slug):
+def league_details(request, league_slug) -> Response:
     """
     Get details of a specific league
     """
     try:
-        league = League.objects.get(slug=league_slug, is_active=True)
+        league = LeagueRepository.get_active_league(league_slug)
     except League.DoesNotExist:
         return Response({"error": "League not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -209,33 +172,28 @@ def league_details(request, league_slug):
 
 @league_matches_schema
 @api_view(["GET"])
-def league_matches(request, league_slug):
+def league_matches(request, league_slug) -> Response:
     """
     Get matches for a specific league
     """
-    now = timezone.now()
     try:
-        league = League.objects.get(slug=league_slug, is_active=True)
+        league = LeagueRepository.get_active_league(league_slug)
     except League.DoesNotExist:
         return Response({"error": "League not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    matches = (
-        Match.objects.filter(league=league, is_active=True, is_bet_available=True)
-        .filter(Q(status="live") | Q(status="scheduled", start_time__gte=now))
-        .order_by("-status", "start_time")
-    )
+    matches = MatchRepository.get_league_matches(league)
 
     serializer = MatchSerializer(matches, many=True)
     return Response(serializer.data)
 
 
 @api_view(["GET"])
-def single_match(request, match_id):
+def single_match(request, match_id) -> Response:
     """
     Get details of a single match
     """
     try:
-        match = Match.objects.get(id=match_id, is_active=True)
+        match = MatchRepository.get_active_match(match_id)
     except Match.DoesNotExist:
         return Response({"error": "Match not found"}, status=status.HTTP_404_NOT_FOUND)
 
