@@ -33,7 +33,6 @@ def import_all_league_matches(self, league_id=None, scheduled=False):
             league_result = import_league_matches(league)
             results["new_matches"] += league_result.get("new_matches", 0)
 
-        print(results)
         logger.info(f"Imported matches for {results['total_leagues']} leagues.")
         return {"status": "success", "results": results}
 
@@ -53,7 +52,7 @@ def import_league_matches(league):
         logger.warning(f"No source URL for league: {league.name}")
         return {"status": "failed", "error": "No source URL for league."}
 
-    scrapper = ScrapperFactory.create_scrapper(league.data_source)
+    scrapper = ScrapperFactory.create_scrapper(league.data_source, sport=league.sport.name)
 
     if not scrapper:
         logger.warning(f"No scrapper found for data source: {league.data_source}")
@@ -101,7 +100,7 @@ def import_match_odds(match: Match):
         logger.warning(f"No source URL for league: {match.name}")
         return {"status": "failed", "error": "No source URL for league."}
 
-    scrapper = ScrapperFactory.create_scrapper(match.league.data_source)
+    scrapper = ScrapperFactory.create_scrapper(match.league.data_source, sport=match.league.sport.name)
 
     if not scrapper:
         logger.warning(f"No scrapper found for data source: {match.league.data_source}")
