@@ -6,7 +6,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
 from webdriver_manager.chrome import ChromeDriverManager
 
-from sports.services.praser import ParserFactory
+from sports.services.parser import ParserFactory
 from sports.services.scrapper import Scrapper, BrowserContext
 
 
@@ -15,14 +15,14 @@ class FlashscoreScrapper(Scrapper):
     Scrapper for Flashscore website.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, sport: str) -> None:
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
             "Accept-Language": "pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
             "Referer": "https://www.flashscore.pl/",
         }
-        self.parser = ParserFactory.create_parser("flashscore")
+        self.parser = ParserFactory.create_parser("flashscore" , sport=sport)
         self.base_url = "https://www.flashscore.pl"
 
     def _setup_browser(self) -> WebDriver:
