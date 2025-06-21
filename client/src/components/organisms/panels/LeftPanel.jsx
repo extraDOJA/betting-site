@@ -29,23 +29,26 @@ const LeftPanel = () => {
       <div className="space-y-6">
         <section>
           <h2 className="text-lg font-semibold mb-3 text-gray-800">Popular</h2>
-          <div className="bg-white rounded-lg shadow-sm">
+          <div className="bg-white rounded-lg shadow-sm min-h-[50px]">
             <div className="divide-y divide-gray-100">
-              {Array.isArray(popular) &&
+              {Array.isArray(popular) && popular.length > 0 ? (
                 popular.map((league) => (
                   <ListItem key={league.id} country={league.country_code} to={league.url_path}>
                     {league.name}
                   </ListItem>
-                ))}
+                ))
+              ) : (
+                <div className="w-full h-[50px] flex items-center justify-center">No active popular league.</div>
+              )}
             </div>
           </div>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold mb-3 text-gray-800">Sport</h2>
-          <div className="bg-white rounded-lg shadow-sm">
+          <div className="bg-white rounded-lg shadow-sm min-h-[50px]">
             <Accordion type="single" collapsible className="w-full">
-              {Array.isArray(sports) &&
+              {Array.isArray(sports) && sports.length > 0 ? (
                 sports.map((sport) => (
                   <AccordionPanelItem key={sport.id} title={sport.name}>
                     {sport.leagues.map((league, i) => (
@@ -54,7 +57,10 @@ const LeftPanel = () => {
                       </ListItem>
                     ))}
                   </AccordionPanelItem>
-                ))}
+                ))
+              ) : (
+                <div className="w-full h-[50px] flex items-center justify-center">No active sport.</div>
+              )}
             </Accordion>
           </div>
         </section>
