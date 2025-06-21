@@ -120,6 +120,45 @@ A comprehensive sports betting application built with Django REST Framework and 
 4. Schedule regular updates (optional)
    - Set up a cron job or use Celery beat to run import_matches periodically
    - Configure Celery for asynchronous processing in production
+  
+### Individual Bet Settlement System per Sport
+
+The bet settlement logic is modular and extensible. Each sport can have its own settlement strategy, making it easy to implement sport-specific rules for evaluating bets.
+
+#### Structure Overview
+
+- **Settlement Base Class:**  
+  All settlement strategies inherit from the abstract [`Settlement`](server/sports/services/settlement.py) class, which defines the interface for settling a bet.
+
+- **Settlement Factory:**  
+  The [`SettlementFactory`](server/sports/services/settlement.py) selects the appropriate settlement strategy based on the sport type (e.g., "football").  
+  Example:
+  ```python
+  settler = SettlementFactory.create_settlement(match.league.sport.name)
+  ```
+
+- **Sport-specific Settlement:**  
+  Each sport has its own class, e.g. [`FootballSettlement`](server/sports/services/settlements/FootballSettlement.py), implementing the logic for settling bets for that sport.
+
+- **Integration with Bet Model:**  
+  The [`Bet`](server/sports/models.py) model calls the correct settlement logic via its `settle_bet()` method:
+  ```python
+  def settle_bet(self) -> None:
+      if not self.is_settled:
+          from sports.services.settlement import SettlementFactory
+          settler = SettlementFactory.create_settlement(self.match.league.sport.name)
+          if settler:
+              settler.settle_bet(self)
+          self.bet_slip.settle_slip()
+  ```
+
+- **Extending for New Sports:**  
+  To add a new sport, create a new settlement class (e.g. `BasketballSettlement`) and update the factory method.
+
+#### Example
+
+- For football, the [`FootballSettlement`](server/sports/services/settlements/FootballSettlement.py) class determines the result based on match scores and bet type.
+- The system can be easily extended for other sports by adding new settlement classes.
 
 ### Celery & Automatic Import of Matches and Odds
 
