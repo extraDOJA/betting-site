@@ -27,6 +27,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token["username"] = user.username
         token["balance"] = str(user.balance)
         token["is_staff"] = user.is_staff
+        token["is_superuser"] = user.is_superuser
         return token
 
 

@@ -3,9 +3,10 @@ import axios from "axios";
 export const addRequestInterceptor = (axiosInstance, accessToken) => {
   return axiosInstance.interceptors.request.use(
     (config) => {
-      if (accessToken) {
+      if (accessToken && config.url !== "/accounts/api/token/refresh/") {
         config.headers.Authorization = `Bearer ${accessToken}`;
       }
+      config.withCredentials = true;
       return config;
     },
     (error) => Promise.reject(error)
@@ -24,13 +25,13 @@ export const addResponseInterceptor = (axiosInstance, tokenCallback) => {
       if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== refreshUrl) {
         originalRequest._retry = true;
         try {
-          const refreshResponse = await axios.get(refreshUrl, { 
-            withCredentials: true 
+          const refreshResponse = await axios.get(refreshUrl, {
+            withCredentials: true,
           });
           const newToken = refreshResponse.data.accessToken;
           tokenCallback(newToken);
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          return axios(originalRequest);
+          return axiosInstance(originalRequest);
         } catch (refreshError) {
           return Promise.reject(refreshError);
         }
