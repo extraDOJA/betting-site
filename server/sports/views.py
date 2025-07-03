@@ -162,7 +162,7 @@ def league_details(request, league_slug) -> Response:
     Get details of a specific league
     """
     try:
-        league = LeagueRepository.get_active_league(league_slug)
+        league = LeagueRepository.get_active_league_by_slug(league_slug)
     except League.DoesNotExist:
         return Response({"error": "League not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -177,7 +177,7 @@ def league_matches(request, league_slug) -> Response:
     Get matches for a specific league
     """
     try:
-        league = LeagueRepository.get_active_league(league_slug)
+        league = LeagueRepository.get_active_league_by_slug(league_slug)
     except League.DoesNotExist:
         return Response({"error": "League not found"}, status=status.HTTP_404_NOT_FOUND)
 
