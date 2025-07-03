@@ -49,10 +49,9 @@ class ScrapperFactory:
     """
 
     @staticmethod
-    def create_scrapper(scrapper_type: str, sport: str) -> Scrapper:
-        if scrapper_type.lower() == "flashscore" and sport.lower() == "football":
+    def create_scrapper(scrapper_type: str) -> Scrapper:
+        if scrapper_type.lower() == "flashscore":
             from sports.services.flashscore.flashscore_scrapper import FlashscoreScrapper
-
-            return FlashscoreScrapper(sport)
+            return FlashscoreScrapper()
         else:
             raise ValueError(f"Unknown scrapper type: {scrapper_type}")
