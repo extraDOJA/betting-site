@@ -82,16 +82,24 @@ def create_bet_slip(request) -> Response:
     if not serializer.is_valid():
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    if request.user.balance < serializer.validated_data["total_amount"]:
+            return Response({"error": "Insufficient balance"}, status=status.HTTP_400_BAD_REQUEST)
+
     try:
-        bet_slip, user_balance = BetSlipRepository.create_bet_slip(user=request.user, validated_data=serializer.validated_data)
-    except InsufficientBalanceError:
-        return Response({"error": "Insufficient balance"}, status=status.HTTP_400_BAD_REQUEST)
+        # TODO: Fix repository for creating bet slips
+        for bet_data in serializer.validated_data["bets"]:
+            match = bet_data["match"]
+            if not match.can_bet:
+                return Response({"error": f"Match {match} is not available for betting"}, status=status.HTTP_400_BAD_REQUEST)
+
+        request.user.substrat_balance(serializer.validated_data["total_amount"])
+        bet_slip = serializer.save(user=request.user)
     except MatchNotAvailableError as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     response_serializer = BetSlipResponseSerializer(bet_slip)
     response_data = response_serializer.data
-    response_data["user_balance"] = user_balance
+    response_data["user_balance"] = request.user.balance
 
     return Response(response_data, status=status.HTTP_201_CREATED)
 
@@ -162,7 +170,7 @@ def league_details(request, league_slug) -> Response:
     Get details of a specific league
     """
     try:
-        league = LeagueRepository.get_active_league(league_slug)
+        league = LeagueRepository.get_active_league_by_slug(league_slug)
     except League.DoesNotExist:
         return Response({"error": "League not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -177,7 +185,7 @@ def league_matches(request, league_slug) -> Response:
     Get matches for a specific league
     """
     try:
-        league = LeagueRepository.get_active_league(league_slug)
+        league = LeagueRepository.get_active_league_by_slug(league_slug)
     except League.DoesNotExist:
         return Response({"error": "League not found"}, status=status.HTTP_404_NOT_FOUND)
 

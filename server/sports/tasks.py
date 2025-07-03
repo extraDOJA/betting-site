@@ -3,7 +3,9 @@ from celery import shared_task
 from django.db import transaction
 from django.utils import timezone
 from datetime import timedelta
-from sports.models import BetOption, BetType, Match, League
+from sports.services.parser import ParserFactory
+from sports.services.odds_manager import OddsManagerFactory
+from sports.models import Match, League
 from sports.services.scrapper import ScrapperFactory
 
 logger = logging.getLogger(__name__)
@@ -52,7 +54,8 @@ def import_league_matches(league):
         logger.warning(f"No source URL for league: {league.name}")
         return {"status": "failed", "error": "No source URL for league."}
 
-    scrapper = ScrapperFactory.create_scrapper(league.data_source, sport=league.sport.name)
+    scrapper = ScrapperFactory.create_scrapper(league.data_source)
+    parser = ParserFactory.create_parser(league.data_source, sport=league.sport.name)
 
     if not scrapper:
         logger.warning(f"No scrapper found for data source: {league.data_source}")
@@ -60,6 +63,7 @@ def import_league_matches(league):
 
     try:
         matches = scrapper.get_league_matches(league.source_url)
+        matches = parser.parse_fixtures_page(matches)
 
         if not matches:
             logger.warning(f"No matches found for league: {league.name}")
@@ -92,7 +96,7 @@ def import_league_matches(league):
         return {"status": "failed", "error": str(e)}
 
 
-def import_match_odds(match: Match):
+def import_match_odds(match: Match) -> bool:
     """
     Import odds for a specific match.
     """
@@ -100,73 +104,13 @@ def import_match_odds(match: Match):
         logger.warning(f"No source URL for league: {match.name}")
         return {"status": "failed", "error": "No source URL for league."}
 
-    scrapper = ScrapperFactory.create_scrapper(match.league.data_source, sport=match.league.sport.name)
+    manager = OddsManagerFactory.create_odds_manager(match.league.data_source, match.league.sport.name)
 
-    if not scrapper:
-        logger.warning(f"No scrapper found for data source: {match.league.data_source}")
-        return {"status": "failed", "error": "No scrapper found."}
+    if not manager:
+        logger.warning(f"No odds manager found for data source: {match.league.data_source} and sport: {match.league.sport.name} ")
+        return False
 
-    try:
-        match_data = scrapper.get_match(match.source_url)
-
-        if not match_data:
-            logger.warning(f"No odds found for match: {match.id}")
-            return {"status": "failed", "error": "No odds found."}
-
-        if match_data.get("is_finished"):
-            match.home_score = match_data.get("home_score")
-            match.away_score = match_data.get("away_score")
-            match.status = "finished"
-            match.is_bet_available = False
-            match.save()
-            return
-
-        with transaction.atomic():
-            match.home_win_odds = match_data.get("home_odds")
-            match.draw_odds = match_data.get("draw_odds")
-            match.away_win_odds = match_data.get("away_odds")
-            match.queue = match_data.get("round")
-            match.status = "scheduled"
-            match.is_bet_available = True
-
-            # Set is_popular based on the start time
-            now = timezone.now()
-            two_days_later = now + timedelta(days=2)
-            match.is_popular = now <= match.start_time <= two_days_later
-
-            match.save()
-
-            bet_type, _ = BetType.objects.get_or_create(code="1X2", defaults={"name": "1X2"})
-            # HOME
-            if match.home_win_odds is not None:
-                BetOption.objects.update_or_create(
-                    match=match,
-                    bet_type=bet_type,
-                    value="home",
-                    defaults={"odds": match.home_win_odds},
-                )
-            # DRAW
-            if match.draw_odds is not None:
-                BetOption.objects.update_or_create(
-                    match=match,
-                    bet_type=bet_type,
-                    value="draw",
-                    defaults={"odds": match.draw_odds},
-                )
-            # AWAY
-            if match.away_win_odds is not None:
-                BetOption.objects.update_or_create(
-                    match=match,
-                    bet_type=bet_type,
-                    value="away",
-                    defaults={"odds": match.away_win_odds},
-                )
-
-        logger.info(f"Imported odds for match: {match.id}")
-        return {"status": "success", "match_data": match_data}
-    except Exception as e:
-        logger.error(f"Error importing odds for match {match.id}: {e}", exc_info=True)
-        return {"status": "failed", "error": str(e)}
+    return manager.import_odds_for_match(match)
 
 
 @shared_task(bind=True)
@@ -191,7 +135,7 @@ def import_upcoming_matches_odds(self):
 
         for match in upcoming_matches:
             result = import_match_odds(match)
-            if result.get("status") == "success":
+            if result:
                 results["successful"] += 1
             else:
                 results["failed"] += 1

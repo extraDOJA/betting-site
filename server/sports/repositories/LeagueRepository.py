@@ -26,3 +26,10 @@ class LeagueRepository:
         Get a single active league by its ID.
         """
         return League.objects.get(id=league_id, is_active=True)
+    
+    @staticmethod
+    def get_active_league_by_slug(slug: str) -> League:
+        """
+        Get a single active league by its slug.
+        """
+        return League.objects.get(slug=slug, is_active=True)
